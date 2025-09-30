@@ -3,13 +3,15 @@
 * DATE: 09/29/2025
 */
 
+#include "GameManager.h"
+
+#include <iostream>
 #include <SFML/Graphics.hpp>
 
 int main()
 {
-    sf::RenderWindow window(sf::VideoMode({ 200, 200 }), "SFML works!");
-    sf::CircleShape shape(100.f);
-    shape.setFillColor(sf::Color::Green);
+    sf::RenderWindow window(sf::VideoMode({ 500, 500 }), "SFML works!");
+    GameManager gm;
 
     while (window.isOpen())
     {
@@ -17,10 +19,15 @@ int main()
         {
             if (event->is<sf::Event::Closed>())
                 window.close();
+
+            if (event->is<sf::Event::Resized>()) {
+                sf::FloatRect viewRect = sf::FloatRect({ 0, 0 }, { static_cast<float>(window.getSize().x), static_cast<float>(window.getSize().y) });
+                window.setView(sf::View(viewRect));
+            }
         }
 
         window.clear();
-        window.draw(shape);
+        gm.Render(window);
         window.display();
     }
 }
