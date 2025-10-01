@@ -143,11 +143,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AbstractPiece.h" />
     <ClCompile Include="Bishop.cpp" />
-    <ClCompile Include="Board.cpp" />
     <ClCompile Include="Bot.cpp" />
     <ClCompile Include="GameManager.cpp" />
-    <ClCompile Include="Horse.cpp" />
+    <ClCompile Include="Knight.cpp" />
     <ClCompile Include="King.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Pawn.cpp" />
@@ -160,7 +160,7 @@
     <ClInclude Include="Board.h" />
     <ClInclude Include="Bot.h" />
     <ClInclude Include="GameManager.h" />
-    <ClInclude Include="Horse.h" />
+    <ClInclude Include="Knight.h" />
     <ClInclude Include="King.h" />
     <ClInclude Include="Pawn.h" />
     <ClInclude Include="Piece.h" />

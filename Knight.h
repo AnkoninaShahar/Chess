@@ -1,7 +1,7 @@
 #include "Piece.h"
 
 #pragma once
-class King : public Piece
+class Knight : public Piece
 {
 public:
 	using Piece::Piece;

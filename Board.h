@@ -2,24 +2,78 @@
 #include <SFML\Graphics.hpp>
 
 #pragma once
+template<typename T>
 class Board
 {
 public:
-	Board(int rows = 10, int cols = 10);
-	~Board();
+	//static const T* BLANK_SPACE;
 
-	const void Render(sf::RenderWindow& window);
+	Board<T>(int rows = 8, int cols = 8) : rows(rows), cols(cols) {
+		//BLANK_SPACE = nullptr;
 
-	static char** GetBoard() {
+		p_Board = new T * *[rows];
+
+		for (int i = 0; i < rows; ++i) {
+			p_Board[i] = new T * [cols];
+		}
+
+		for (int i = 0; i < rows; ++i) {
+			for (int j = 0; j < cols; ++j) {
+				p_Board[i][j] = nullptr;
+			}
+		}
+	}
+	~Board() {
+		for (int i = 0; i < rows; ++i) {
+			delete[] p_Board[i];
+		}
+
+		delete[] p_Board;
+		p_Board = nullptr;
+	}
+
+	const void Render(sf::RenderWindow& window) {
+		sf::Vector2f windowSize = { static_cast<float>(window.getSize().x), static_cast<float>(window.getSize().y) };
+		float smallestScreenSide = fminf(windowSize.x, windowSize.y);
+
+		float width = smallestScreenSide / cols;
+		float height = smallestScreenSide / rows;
+
+		sf::Vector2f centerOffset = { windowSize.x / 2 - (width * cols) / 2, windowSize.y / 2 - (height * rows) / 2 };
+
+		for (int i = 0; i < rows; ++i) {
+			for (int j = 0; j < cols; ++j) {
+
+				sf::RectangleShape rect = sf::RectangleShape({ width, height });
+				rect.setPosition({ j * width + centerOffset.x, i * height + centerOffset.y });
+
+				if ((i % 2 == 0 && j % 2 == 0) || (i % 2 != 0 && j % 2 != 0))
+					rect.setFillColor(sf::Color(207, 207, 207));
+				else
+					rect.setFillColor(sf::Color(86, 112, 80));
+
+				window.draw(rect);
+			}
+		}
+	}
+
+	static T*** GetBoard() {
 		return p_Board;
 	}
 
-	static char GetSpace(int row, int col) {
+	static void SetSpace(int row, int col, T* p) {
+		p_Board[row][col] = p;
+	}
+
+	static T* GetSpace(int row, int col) {
 		return p_Board[row][col];
+	}
+	
+	const sf::Vector2i GetSize() {
+		return { cols, rows };
 	}
 
 private:
 	const int rows, cols;
-	static inline char** p_Board = new char*[0];
+	static inline T*** p_Board = new T**[0];
 };
-
