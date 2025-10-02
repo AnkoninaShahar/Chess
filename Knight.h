@@ -1,25 +1,23 @@
 #include "Piece.h"
 
+#include <cmath>
+
 #pragma once
 class Knight : public Piece
 {
 public:
 	using Piece::Piece;
 	const std::vector<sf::Vector2i> CalculateLegalMoves() override {
-		std::vector<sf::Vector2i> moves {
-			{ pos.x + 3, pos.y + 1 },
-			{ pos.x + 3, pos.y - 1 },
-			{ pos.x - 3, pos.y + 1 },
-			{ pos.x - 3, pos.y - 1 },
-			{ pos.x + 1, pos.y + 3 },
-			{ pos.x + 1, pos.y - 3 },
-			{ pos.x - 1, pos.y + 3 },
-			{ pos.x - 1, pos.y - 3 }
-		};
+		std::vector<sf::Vector2i> moves;
 
-		for (auto move = moves.end() - 1; move != moves.begin(); --move) {
-			if (!IsLegalMove((*move).x, (*move).y))
-				moves.erase(move);
+		int dir[4] = { 2, 1, -1, -2 };
+		
+		for (int i = 0; i < 4; i++) {
+			for (int j = 0; j < 4; j++) {
+				if (abs(dir[i]) != abs(dir[j]) && IsLegalMove(pos.x + dir[i], pos.y + dir[j])) {
+					moves.push_back({ pos.x + dir[i], pos.y + dir[j] });
+				}
+			}
 		}
 
 		return moves;

@@ -13,13 +13,15 @@ void Piece::Move(int x, int y) {
 		}
 		Board<Piece>::SetSpace(pos.x, pos.y, nullptr);
 		Board<Piece>::SetSpace(x, y, this);
+
+		pos = { x, y };
 	}
 }
 
 bool Piece::IsLegalMove(int x, int y) {
 	bool isOutOfBounds = (x <= -1 || x >= boardSize.x) || (y <= -1 || y >= boardSize.y);
 	if (!isOutOfBounds) {
-		bool isOnOwn = Board<Piece>::GetSpace(x, y)->GetColor() == col;
+		bool isOnOwn = (Board<Piece>::GetSpace(x, y) != nullptr) && ((*Board<Piece>::GetSpace(x, y)).GetColor() == col);
 		return !isOnOwn;
 	}
 	else

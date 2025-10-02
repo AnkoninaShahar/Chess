@@ -49,9 +49,16 @@ const void GameManager::DrawScreen(sf::RenderWindow& window) {
 		sf::Vector2i boardPos = board->PositionToSpace(sf::Mouse::getPosition(window).x, sf::Mouse::getPosition(window).y);
 		board->AddSelectedSpace(boardPos.x, boardPos.y);
 
-		if (board->GetSpace(boardPos.x, boardPos.y) != nullptr) {
-			for (sf::Vector2i move : (*board->GetSpace(boardPos.x, boardPos.y)).CalculateLegalMoves()) {
-				board->AddSelectedSpace(move.x, move.y);
+		if (p != nullptr && boardPos != p->GetPosition()) {
+			p->Move(boardPos.x, boardPos.y);
+			p = nullptr;
+		}
+		else {
+			p = board->GetSpace(boardPos.x, boardPos.y);
+			if (p != nullptr) {
+				for (sf::Vector2i move : (*p).CalculateLegalMoves()) {
+					board->AddSelectedSpace(move.x, move.y);
+				}
 			}
 		}
 	}
@@ -89,7 +96,7 @@ const void GameManager::DrawScreen(sf::RenderWindow& window) {
 				else if (pieceName.find("King") != std::string::npos) piece = KING;
 
 				sf::Sprite sprite(tex);
-				sprite.setTextureRect(rects[(board->GetSpace(i, j)->GetColor() == Piece::WHITE) ? piece + 6 : piece]);
+				sprite.setTextureRect(rects[((*board->GetSpace(i, j)).GetColor() == Piece::WHITE) ? piece + 6 : piece]);
 				sprite.setPosition({ i * width + centerOffset.x, j * height + centerOffset.y});
 				sprite.setScale({ smallestScreenSide / 500, smallestScreenSide / 500 });
 				window.draw(sprite);

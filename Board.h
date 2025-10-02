@@ -72,6 +72,10 @@ public:
 			selectedSpcs.push_back(sf::Vector2i(row, col));
 	}
 
+	std::vector<sf::Vector2i> GetSelectedSpaces() {
+		return selectedSpcs;
+	}
+
 	void ClearSelectedSpaces() {
 		selectedSpcs.clear();
 	}

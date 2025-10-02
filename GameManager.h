@@ -23,6 +23,8 @@ public:
 private:
 	Board<Piece>* board;
 
+	Piece* p = nullptr;
+
 	enum pieces {
 		QUEEN,
 		KING,

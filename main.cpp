@@ -1,6 +1,6 @@
 /*
 * Author: SHAHAR ANKONINA
-* DATE: 10/01/2025
+* DATE: 10/02/2025
 */
 
 #include "GameManager.h"
@@ -10,7 +10,7 @@
 
 int main()
 {
-    sf::RenderWindow window(sf::VideoMode({ 500, 500 }), "SFML works!");
+    sf::RenderWindow window(sf::VideoMode({ 500, 500 }), "Chess");
     GameManager gm;
 
     while (window.isOpen())
