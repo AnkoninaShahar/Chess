@@ -1,3 +1,4 @@
+#include <iostream>
 #include <cmath>
 #include <SFML\Graphics.hpp>
 
@@ -36,25 +37,43 @@ public:
 		sf::Vector2f windowSize = { static_cast<float>(window.getSize().x), static_cast<float>(window.getSize().y) };
 		float smallestScreenSide = fminf(windowSize.x, windowSize.y);
 
-		float width = smallestScreenSide / cols;
-		float height = smallestScreenSide / rows;
+		spcWidth = smallestScreenSide / cols;
+		spcHeight = smallestScreenSide / rows;
 
-		sf::Vector2f centerOffset = { windowSize.x / 2 - (width * cols) / 2, windowSize.y / 2 - (height * rows) / 2 };
+		centerOffset = { windowSize.x / 2 - (spcWidth * cols) / 2, windowSize.y / 2 - (spcHeight * rows) / 2 };
 
 		for (int i = 0; i < rows; ++i) {
 			for (int j = 0; j < cols; ++j) {
 
-				sf::RectangleShape rect = sf::RectangleShape({ width, height });
-				rect.setPosition({ j * width + centerOffset.x, i * height + centerOffset.y });
+				sf::RectangleShape rect = sf::RectangleShape({ spcWidth, spcHeight });
+				rect.setPosition({ j * spcWidth + centerOffset.x, i * spcHeight + centerOffset.y });
 
 				if ((i % 2 == 0 && j % 2 == 0) || (i % 2 != 0 && j % 2 != 0))
 					rect.setFillColor(sf::Color(207, 207, 207));
 				else
 					rect.setFillColor(sf::Color(86, 112, 80));
 
+				for (sf::Vector2i spc : selectedSpcs) {
+					if (spc == sf::Vector2i({ j, i }))
+						rect.setFillColor(sf::Color(186, 114, 114));
+				}
+
 				window.draw(rect);
 			}
 		}
+	}
+
+	sf::Vector2i PositionToSpace(int x, int y) {
+		return sf::Vector2i({ static_cast<int>((x - centerOffset.x) / spcWidth), static_cast<int>((y - centerOffset.y) / spcHeight) });
+	}
+
+	void AddSelectedSpace(int row, int col) {
+		if ((row > -1 && row < rows) && (col > -1 && col < cols))
+			selectedSpcs.push_back(sf::Vector2i(row, col));
+	}
+
+	void ClearSelectedSpaces() {
+		selectedSpcs.clear();
 	}
 
 	static T*** GetBoard() {
@@ -62,11 +81,15 @@ public:
 	}
 
 	static void SetSpace(int row, int col, T* p) {
-		p_Board[row][col] = p;
+		if ((row > -1 && row < sizeof(*p_Board)) && (col > -1 && col < sizeof(*p_Board[0])))
+			p_Board[row][col] = p;
 	}
 
 	static T* GetSpace(int row, int col) {
-		return p_Board[row][col];
+		if ((row > -1 && row < sizeof(*p_Board)) && (col > -1 && col < sizeof(*p_Board[0])))
+			return p_Board[row][col];
+		else
+			return nullptr;
 	}
 	
 	const sf::Vector2i GetSize() {
@@ -76,4 +99,10 @@ public:
 private:
 	const int rows, cols;
 	static inline T*** p_Board = new T**[0];
+
+	float spcWidth = 0.f;
+	float spcHeight = 0.f;
+
+	sf::Vector2f centerOffset;
+	std::vector<sf::Vector2i> selectedSpcs;
 };

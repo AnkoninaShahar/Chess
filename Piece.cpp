@@ -17,8 +17,11 @@ void Piece::Move(int x, int y) {
 }
 
 bool Piece::IsLegalMove(int x, int y) {
-	bool isOnOwn = Board<Piece>::GetSpace(x, y)->GetColor() == col;
-	bool isOutOfBounds = (x <= -1 || x >= boardSize.x) && (y <= -1 || y >= boardSize.y);
-
-	return !isOnOwn && !isOutOfBounds;
+	bool isOutOfBounds = (x <= -1 || x >= boardSize.x) || (y <= -1 || y >= boardSize.y);
+	if (!isOutOfBounds) {
+		bool isOnOwn = Board<Piece>::GetSpace(x, y)->GetColor() == col;
+		return !isOnOwn;
+	}
+	else
+		return !isOutOfBounds;
 }

@@ -18,7 +18,7 @@ public:
 	GameManager();
 	~GameManager();
 
-	const void Render(sf::RenderWindow& window);
+	const void DrawScreen(sf::RenderWindow& window);
 
 private:
 	Board<Piece>* board;

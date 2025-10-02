@@ -33,7 +33,7 @@ GameManager::~GameManager() {
 	delete board;
 }
 
-const void GameManager::Render(sf::RenderWindow& window) {
+const void GameManager::DrawScreen(sf::RenderWindow& window) {
 
 	// Draws background color
 	sf::RectangleShape background;
@@ -44,6 +44,19 @@ const void GameManager::Render(sf::RenderWindow& window) {
 	// Draws the board
 	board->Render(window);
 
+	if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)) {
+		board->ClearSelectedSpaces();
+		sf::Vector2i boardPos = board->PositionToSpace(sf::Mouse::getPosition(window).x, sf::Mouse::getPosition(window).y);
+		board->AddSelectedSpace(boardPos.x, boardPos.y);
+
+		if (board->GetSpace(boardPos.x, boardPos.y) != nullptr) {
+			for (sf::Vector2i move : (*board->GetSpace(boardPos.x, boardPos.y)).CalculateLegalMoves()) {
+				board->AddSelectedSpace(move.x, move.y);
+			}
+		}
+	}
+
+	// Draws Pieces
 	sf::Texture tex;
 	if (!tex.loadFromFile("Sprites/Chess_Sprite_Sheet.png"))
 		window.close();

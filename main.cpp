@@ -27,7 +27,7 @@ int main()
         }
 
         window.clear();
-        gm.Render(window);
+        gm.DrawScreen(window);
         window.display();
     }
 }
