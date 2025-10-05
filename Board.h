@@ -1,39 +1,58 @@
+#pragma once
+
 #include <iostream>
 #include <cmath>
 #include <SFML\Graphics.hpp>
 
-#pragma once
+/// <summary>
+/// Represents a board
+/// </summary>
+/// <typeparam name="T"> The type of object the board holds </typeparam>
 template<typename T>
 class Board
 {
 public:
-	//static const T* BLANK_SPACE;
+	static inline const T* BLANK_SPACE; // Is a blank space
 
+	// Constructor for board
 	Board<T>(int rows = 8, int cols = 8) : rows(rows), cols(cols) {
-		//BLANK_SPACE = nullptr;
+		BLANK_SPACE = nullptr;
 
-		p_Board = new T * *[rows];
-
+		// Sets up the board as a 2 dimensional array
+		board = new T * *[rows];
 		for (int i = 0; i < rows; ++i) {
-			p_Board[i] = new T * [cols];
+			board[i] = new T * [cols];
 		}
-
 		for (int i = 0; i < rows; ++i) {
 			for (int j = 0; j < cols; ++j) {
-				p_Board[i][j] = nullptr;
+				board[i][j] = nullptr;
 			}
 		}
 	}
+
+	// Deletes the board
 	~Board() {
 		for (int i = 0; i < rows; ++i) {
-			delete[] p_Board[i];
+			for (int j = 0; j < cols; ++j) {
+				delete board[i][j];
+			}
 		}
 
-		delete[] p_Board;
-		p_Board = nullptr;
+		for (int i = 0; i < rows; ++i) {
+			delete[] board[i];
+		}
+
+		delete[] board;
+		board = nullptr;
 	}
 
+	/// <summary>
+	/// Renders the board
+	/// </summary>
+	/// <param name="window"> Window that is drawn on </param>
 	const void Render(sf::RenderWindow& window) {
+
+		// Calculates useful values
 		sf::Vector2f windowSize = { static_cast<float>(window.getSize().x), static_cast<float>(window.getSize().y) };
 		float smallestScreenSide = fminf(windowSize.x, windowSize.y);
 
@@ -42,27 +61,30 @@ public:
 
 		centerOffset = { windowSize.x / 2 - (spcWidth * cols) / 2, windowSize.y / 2 - (spcHeight * rows) / 2 };
 
+		// Draws the checkered design
+		sf::RectangleShape rect = sf::RectangleShape({ spcWidth, spcHeight });
 		for (int i = 0; i < rows; ++i) {
-			for (int j = 0; j < cols; ++j) {
-
-				sf::RectangleShape rect = sf::RectangleShape({ spcWidth, spcHeight });
+			for (int j = 0; j < cols; ++j) { 
 				rect.setPosition({ j * spcWidth + centerOffset.x, i * spcHeight + centerOffset.y });
-
 				if ((i % 2 == 0 && j % 2 == 0) || (i % 2 != 0 && j % 2 != 0))
 					rect.setFillColor(sf::Color(207, 207, 207));
 				else
 					rect.setFillColor(sf::Color(86, 112, 80));
 
-				for (sf::Vector2i spc : selectedSpcs) {
-					if (spc == sf::Vector2i({ j, i }))
-						rect.setFillColor(sf::Color(186, 114, 114));
-				}
-
 				window.draw(rect);
 			}
 		}
+
+		// Draws spaces that are selected
+		for (sf::Vector2i spc : selectedSpcs) {
+			rect.setPosition({ spc.x * spcWidth + centerOffset.x, spc.y * spcHeight + centerOffset.y });
+			rect.setFillColor(sf::Color(186, 114, 114, 200));
+
+			window.draw(rect);
+		}
 	}
 
+	// Translates coordinates to board spaces
 	sf::Vector2i PositionToSpace(int x, int y) {
 		return sf::Vector2i({ static_cast<int>((x - centerOffset.x) / spcWidth), static_cast<int>((y - centerOffset.y) / spcHeight) });
 	}
@@ -81,17 +103,17 @@ public:
 	}
 
 	static T*** GetBoard() {
-		return p_Board;
+		return board;
 	}
 
-	static void SetSpace(int row, int col, T* p) {
-		if ((row > -1 && row < sizeof(*p_Board)) && (col > -1 && col < sizeof(*p_Board[0])))
-			p_Board[row][col] = p;
+	static void SetSpace(int row, int col, T* obj) {
+		if ((row > -1 && row < sizeof(*board)) && (col > -1 && col < sizeof(*board[0])))
+			board[row][col] = obj;
 	}
 
 	static T* GetSpace(int row, int col) {
-		if ((row > -1 && row < sizeof(*p_Board)) && (col > -1 && col < sizeof(*p_Board[0])))
-			return p_Board[row][col];
+		if ((row > -1 && row < sizeof(*board)) && (col > -1 && col < sizeof(*board[0])))
+			return board[row][col];
 		else
 			return nullptr;
 	}
@@ -100,9 +122,17 @@ public:
 		return { cols, rows };
 	}
 
+	const sf::Vector2f GetSpaceSize() {
+		return { spcWidth, spcHeight };
+	}
+
+	const sf::Vector2f GetBoardOffset() {
+		return centerOffset;
+	}
+
 private:
 	const int rows, cols;
-	static inline T*** p_Board = new T**[0];
+	static inline T*** board = new T**[0];
 
 	float spcWidth = 0.f;
 	float spcHeight = 0.f;

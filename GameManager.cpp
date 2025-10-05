@@ -1,7 +1,11 @@
 #include "GameManager.h"
 
+// Game Manager Constructor
 GameManager::GameManager() {
-	board = new Board<Piece>();
+	board = new Board<Piece>(); // Creates the board
+
+	// Sets up the game pieces
+	//__________________________________________________________
 
 	new King(3, 7, Piece::WHITE, board->GetSize());
 	new King(3, 0, Piece::BLACK, board->GetSize());
@@ -29,17 +33,40 @@ GameManager::GameManager() {
 		new Pawn(i, 6, Piece::WHITE, board->GetSize());
 	}
 }
+
+// Deletes the board
 GameManager::~GameManager() {
 	delete board;
 }
 
+/// <summary>
+/// Renders every aspect of the screen
+/// </summary>
+/// <param name="window"> The window drawn on </param>
 const void GameManager::DrawScreen(sf::RenderWindow& window) {
+	DrawBackground(window);
+	DrawBoard(window);
+	DrawPieces(window);
+}
+
+/// <summary>
+/// Renders the background color behind the board
+/// </summary>
+/// <param name="window"> The window drawn on </param>
+const void GameManager::DrawBackground(sf::RenderWindow& window) {
 
 	// Draws background color
 	sf::RectangleShape background;
 	background.setSize({ static_cast<float>(window.getSize().x), static_cast<float>(window.getSize().y) });
 	background.setFillColor(sf::Color(48, 37, 28));
 	window.draw(background);
+}
+
+/// <summary>
+/// Renders the board
+/// </summary>
+/// <param name="window"> The window drawn on </param>
+const void GameManager::DrawBoard(sf::RenderWindow& window) {
 
 	// Draws the board
 	board->Render(window);
@@ -49,43 +76,46 @@ const void GameManager::DrawScreen(sf::RenderWindow& window) {
 		sf::Vector2i boardPos = board->PositionToSpace(sf::Mouse::getPosition(window).x, sf::Mouse::getPosition(window).y);
 		board->AddSelectedSpace(boardPos.x, boardPos.y);
 
-		if (p != nullptr && boardPos != p->GetPosition()) {
-			p->Move(boardPos.x, boardPos.y);
+		if (p != board->BLANK_SPACE && boardPos != p->GetPosition() && (turnNum % 2 == 0) == p->GetColor()) {
+			if (p->Move(boardPos.x, boardPos.y))
+				turnNum++;
 			p = nullptr;
 		}
 		else {
 			p = board->GetSpace(boardPos.x, boardPos.y);
-			if (p != nullptr) {
-				for (sf::Vector2i move : (*p).CalculateLegalMoves()) {
-					board->AddSelectedSpace(move.x, move.y);
-				}
+			if (p != board->BLANK_SPACE && (turnNum % 2 == 0) == p->GetColor()) {
+				for (std::pair<sf::Vector2i, Piece*> move : p->CalculateLegalMoves())
+					board->AddSelectedSpace(move.first.x, move.first.y);
 			}
 		}
 	}
+}
 
-	// Draws Pieces
+/// <summary>
+/// Renders the pieces
+/// </summary>
+/// <param name="window"> The window drawn on </param>
+const void GameManager::DrawPieces(sf::RenderWindow& window) {
+
+	// Loads the texture
 	sf::Texture tex;
 	if (!tex.loadFromFile("Sprites/Chess_Sprite_Sheet.png"))
 		window.close();
 
+	// Seperates the sprites
 	sf::Vector2i texSize = { static_cast<int>(tex.getSize().x), static_cast<int>(tex.getSize().y) };
 	sf::IntRect rects[12];
-
 	for (int i = 0; i < 12; ++i) {
 		rects[i] = sf::IntRect({ texSize.x * ((i >= 6) ? (i - 6) : i) / 6, ((i >= 6) ? texSize.y / 2 : 0) }, { texSize.x / 6, texSize.y / 2 });
 	}
 
-	sf::Vector2f windowSize = { static_cast<float>(window.getSize().x), static_cast<float>(window.getSize().y) };
-	float smallestScreenSide = fminf(windowSize.x, windowSize.y);
-
-	float width = smallestScreenSide / board->GetSize().x;
-	float height = smallestScreenSide / board->GetSize().y;
-
-	sf::Vector2f centerOffset = { windowSize.x / 2 - (width * board->GetSize().y) / 2, windowSize.y / 2 - (height * board->GetSize().x) / 2 };
-
+	// Draws the sprites
+	float smallestScreenSide = fminf(static_cast<float>(window.getSize().x), static_cast<float>(window.getSize().y));
 	for (int i = 0; i < board->GetSize().x; ++i) {
 		for (int j = 0; j < board->GetSize().y; ++j) {
-			if (board->GetSpace(i, j) != nullptr) {
+			if (board->GetSpace(i, j) != board->BLANK_SPACE) {
+				board->GetSpace(i, j)->Update(turnNum);
+
 				std::string pieceName = typeid(*board->GetSpace(i, j)).name();
 
 				if (pieceName.find("Pawn") != std::string::npos) piece = PAWN;
@@ -97,7 +127,7 @@ const void GameManager::DrawScreen(sf::RenderWindow& window) {
 
 				sf::Sprite sprite(tex);
 				sprite.setTextureRect(rects[((*board->GetSpace(i, j)).GetColor() == Piece::WHITE) ? piece + 6 : piece]);
-				sprite.setPosition({ i * width + centerOffset.x, j * height + centerOffset.y});
+				sprite.setPosition({ i * board->GetSpaceSize().x + board->GetBoardOffset().x, j * board->GetSpaceSize().y + board->GetBoardOffset().y});
 				sprite.setScale({ smallestScreenSide / 500, smallestScreenSide / 500 });
 				window.draw(sprite);
 			}

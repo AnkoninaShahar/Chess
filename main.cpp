@@ -1,6 +1,6 @@
 /*
 * Author: SHAHAR ANKONINA
-* DATE: 10/02/2025
+* DATE: 10/04/2025
 */
 
 #include "GameManager.h"
@@ -27,7 +27,7 @@ int main()
         }
 
         window.clear();
-        gm.DrawScreen(window);
+        gm.DrawScreen(window); // Draws the game
         window.display();
     }
 }

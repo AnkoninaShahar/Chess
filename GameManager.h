@@ -1,3 +1,5 @@
+#pragma once
+
 #include "Board.h"
 #include "Piece.cpp"
 #include "Pawn.h"
@@ -11,20 +13,22 @@
 #include <iostream>
 #include <SFML\Graphics.hpp>
 
-#pragma once
+/// <summary>
+/// Manages all the aspects of this game
+/// </summary>
 class GameManager
 {
 public:
-	GameManager();
+	GameManager(); // Constructor for the Game Manager
 	~GameManager();
 
 	const void DrawScreen(sf::RenderWindow& window);
 
 private:
-	Board<Piece>* board;
+	Board<Piece>* board; // the Board
+	Piece* p = nullptr; 
 
-	Piece* p = nullptr;
-
+	// All the pieces in chess
 	enum pieces {
 		QUEEN,
 		KING,
@@ -34,5 +38,12 @@ private:
 		PAWN,
 	};
 	pieces piece = pieces::KING;
+
+	int turnNum = 0; // Number of turns
+
+	const void DrawBackground(sf::RenderWindow& window);
+	const void DrawBoard(sf::RenderWindow& window);
+	const void DrawPieces(sf::RenderWindow& window);
+
 };
 
