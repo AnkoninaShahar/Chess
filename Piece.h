@@ -43,6 +43,10 @@ public:
 
 	virtual const void Promote(int choice) {}
 
+	const void SetPosition(sf::Vector2i pos) {
+		this->pos = pos;
+	}
+
 	const sf::Vector2i GetPosition() {
 		return pos;
 	}
@@ -53,6 +57,10 @@ public:
 
 	const int GetTurn() {
 		return turnNum;
+	}
+
+	const int GetMoveNum() {
+		return moveNum;
 	}
 
 	const bool operator== (const Piece& other) {

@@ -7,11 +7,11 @@ GameManager::GameManager() {
 	// Sets up the game pieces
 	//__________________________________________________________
 
-	new King(3, 7, Piece::WHITE, board->GetSize());
-	new King(3, 0, Piece::BLACK, board->GetSize());
+	new King(4, 7, Piece::WHITE, board->GetSize());
+	new King(4, 0, Piece::BLACK, board->GetSize());
 
-	new Queen(4, 7, Piece::WHITE, board->GetSize());
-	new Queen(4, 0, Piece::BLACK, board->GetSize());
+	new Queen(3, 7, Piece::WHITE, board->GetSize());
+	new Queen(3, 0, Piece::BLACK, board->GetSize());
 
 	new Bishop(2, 7, Piece::WHITE, board->GetSize());
 	new Bishop(5, 7, Piece::WHITE, board->GetSize());
