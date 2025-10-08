@@ -21,9 +21,9 @@ public:
 	}
 
 	// Checks move along with checking if the pawn is en-passantable
-	inline bool Move(int x, int y) override {
+	inline bool Move(int x, int y, std::vector<std::pair<sf::Vector2i, Piece*>> legalMoves) override {
 		sf::Vector2i prePos = pos;
-		if (Piece::Move(x, y)) {
+		if (Piece::Move(x, y, legalMoves)) {
 			if (moveNum == 1 && abs(pos.y - prePos.y) == 2)
 				enPassantablePiece = new std::pair<Pawn, int>(*this, turnNum);
 			return true;

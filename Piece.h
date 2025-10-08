@@ -1,14 +1,11 @@
 #pragma once
 
 #include "Board.h"
-#include "PieceUtilz.h"
 
 #include <string>
 #include <vector>
 #include <typeinfo>
 #include <SFML\Graphics.hpp>
-
-using namespace PieceUtilz; // Extra piece functions
 
 /// <summary>
 /// Blueprint class for more specific pieces
@@ -27,7 +24,7 @@ public:
 	inline Piece(int x, int y, color col, const sf::Vector2i& boardSize);
 	inline Piece(const Piece& copy) : pos(copy.pos), col(copy.col), boardSize(copy.boardSize) {}
 
-	inline virtual bool Move(int x, int y);
+	inline virtual bool Move(int x, int y, std::vector<std::pair<sf::Vector2i, Piece*>> legalMoves);
 
 	inline virtual const std::vector<std::pair<sf::Vector2i, Piece*>> CalculateLegalMoves() { return std::vector<std::pair<sf::Vector2i, Piece*>>(0); }
 
@@ -42,6 +39,10 @@ public:
 	}
 
 	virtual const void Promote(int choice) {}
+
+	const void SetCheck(bool inCheck) {
+		this->inCheck = inCheck;
+	}
 
 	const void SetPosition(sf::Vector2i pos) {
 		this->pos = pos;
@@ -75,6 +76,8 @@ protected:
 
 	int moveNum = 0;
 	int turnNum = 0;
+
+	bool inCheck = false;
 
 	inline virtual bool IsLegalMove(int x, int y);
 

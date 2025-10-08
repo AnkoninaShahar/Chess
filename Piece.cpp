@@ -11,8 +11,8 @@ Piece::Piece(int x, int y, color col, const sf::Vector2i& boardSize) : pos({x, y
 /// <param name="x"> x-coordinate of the position </param>
 /// <param name="y"> y-coordinate of the position </param>
 /// <returns> True: move was made; False: move was not made</returns>
-bool Piece::Move(int x, int y) {
-	for (std::pair<sf::Vector2i, Piece*> move : CalculateLegalMoves()) {
+bool Piece::Move(int x, int y, std::vector<std::pair<sf::Vector2i, Piece*>> legalMoves) {
+	for (std::pair<sf::Vector2i, Piece*> move : legalMoves) {
 		if (move.first == sf::Vector2i({ x, y })) {
 			
 			// Captures other piece

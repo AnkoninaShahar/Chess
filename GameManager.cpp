@@ -47,6 +47,9 @@ const void GameManager::DrawScreen(sf::RenderWindow& window) {
 	DrawBackground(window);
 	DrawBoard(window);
 	DrawPieces(window);
+
+	//std::cout << IsChecked(Piece::BLACK) << std::endl;
+	//std::cout << IsChecked(Piece::WHITE) << std::endl;
 }
 
 /// <summary>
@@ -94,15 +97,31 @@ const void GameManager::DrawBoard(sf::RenderWindow& window) {
 		board->AddSelectedSpace(boardPos.x, boardPos.y);
 
 		if (p != board->BLANK_SPACE && boardPos != p->GetPosition() && (turnNum % 2 == 0) == p->GetColor()) {
-			if (p->Move(boardPos.x, boardPos.y) && !p->CanPromote())
+
+			//std::vector<std::pair<sf::Vector2i, Piece*>> moves;
+			//if (IsChecked(p->GetColor()))
+			//	moves = CalculateCheckMoves(p);
+			//else 
+			//	moves = p->CalculateLegalMoves();
+
+			if (p->Move(boardPos.x, boardPos.y, CalculateCheckMoves(p)) && !p->CanPromote())
 				turnNum++;
 			p = nullptr;
 		}
 		else {
 			p = board->GetSpace(boardPos.x, boardPos.y);
 			if (p != board->BLANK_SPACE && (turnNum % 2 == 0) == p->GetColor()) {
-				for (std::pair<sf::Vector2i, Piece*> move : p->CalculateLegalMoves())
+				p->SetCheck(IsChecked(p->GetColor()));
+
+				//std::vector<std::pair<sf::Vector2i, Piece*>> moves;
+				//if (IsChecked(p->GetColor()))
+				//	moves = CalculateCheckMoves(p);
+				//else
+				//	moves = p->CalculateLegalMoves();
+
+				for (std::pair<sf::Vector2i, Piece*> move : CalculateCheckMoves(p)) {
 					board->AddSelectedSpace(move.first.x, move.first.y);
+				}
 			}
 		}
 	}

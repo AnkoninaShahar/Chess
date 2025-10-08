@@ -12,9 +12,9 @@ public:
 	using Piece::Piece; // Uses piece constructors
 
 	// Checks move along with checking if the king castled
-	inline bool Move(int x, int y) override {
+	inline bool Move(int x, int y, std::vector<std::pair<sf::Vector2i, Piece*>> legalMoves) override {
 		sf::Vector2i prePos = pos;
-		if (Piece::Move(x, y) && moveNum == 1) {
+		if (Piece::Move(x, y, legalMoves) && moveNum == 1) {
 			if (prePos.x - pos.x == 2) {
 				Piece* rook = Board<Piece>::GetSpace(0, pos.y);
 				MoveRook(rook, { pos.x + 1, pos.y });
