@@ -36,6 +36,13 @@ public:
 		this->turnNum = turnNum;
 	}
 
+	inline const bool CanPromote() {
+		std::string pieceName = typeid(*this).name();
+		return pieceName.find("Pawn") != std::string::npos && (pos.y == 0 || pos.y == 7);
+	}
+
+	virtual const void Promote(int choice) {}
+
 	const sf::Vector2i GetPosition() {
 		return pos;
 	}

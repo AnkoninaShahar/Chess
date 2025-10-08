@@ -1,6 +1,10 @@
 #pragma once
 
 #include "Piece.h"
+#include "Queen.h"
+#include "Rook.h"
+#include "Knight.h"
+#include "Bishop.h"
 
 /// <summary>
 /// Represents the Pawn game piece
@@ -62,7 +66,22 @@ public:
 		return moves;
 	}
 
-	// PROMOTION
+	const void Promote(int choice) override {
+		switch (choice) {
+		case 1:
+			new Queen(pos.x, pos.y, col, boardSize);
+			break;
+		case 2:
+			new Rook(pos.x, pos.y, col, boardSize);
+			break;
+		case 3:
+			new Knight(pos.x, pos.y, col, boardSize);
+			break;
+		default:
+			new Bishop(pos.x, pos.y, col, boardSize);
+			break;
+		}
+	}
 
 private:
 	static inline std::pair<Pawn, int>* enPassantablePiece = nullptr; // Tracks the pawn that is en-passantable

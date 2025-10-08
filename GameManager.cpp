@@ -71,13 +71,30 @@ const void GameManager::DrawBoard(sf::RenderWindow& window) {
 	// Draws the board
 	board->Render(window);
 
-	if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)) {
+	if (p != nullptr && p->CanPromote()) {
+		int choice = 0;
+		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Num1))
+			choice = 1;
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Num2))
+			choice = 2;
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Num3))
+			choice = 3;
+		else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Num4))
+			choice = 4;
+
+		if (choice != 0) {
+			p->Promote(choice);
+			turnNum++;
+			p = nullptr;
+		}
+	}
+	else if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)) {
 		board->ClearSelectedSpaces();
 		sf::Vector2i boardPos = board->PositionToSpace(sf::Mouse::getPosition(window).x, sf::Mouse::getPosition(window).y);
 		board->AddSelectedSpace(boardPos.x, boardPos.y);
 
 		if (p != board->BLANK_SPACE && boardPos != p->GetPosition() && (turnNum % 2 == 0) == p->GetColor()) {
-			if (p->Move(boardPos.x, boardPos.y))
+			if (p->Move(boardPos.x, boardPos.y) && !p->CanPromote())
 				turnNum++;
 			p = nullptr;
 		}
