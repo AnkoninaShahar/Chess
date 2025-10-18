@@ -14,14 +14,16 @@ public:
 	// Checks move along with checking if the king castled
 	inline bool Move(int x, int y, std::vector<std::pair<sf::Vector2i, Piece*>> legalMoves) override {
 		sf::Vector2i prePos = pos;
-		if (Piece::Move(x, y, legalMoves) && moveNum == 1) {
-			if (prePos.x - pos.x == 2) {
-				Piece* rook = Board<Piece>::GetSpace(0, pos.y);
-				MoveRook(rook, { pos.x + 1, pos.y });
-			}
-			else if (pos.x - prePos.x == 2) {
-				Piece* rook = Board<Piece>::GetSpace(7, pos.y);
-				MoveRook(rook, { pos.x - 1, pos.y });
+		if (Piece::Move(x, y, legalMoves)) {
+			if (moveNum == 1) {
+				if (prePos.x - pos.x == 2) {
+					Piece* rook = Board<Piece>::GetSpace(0, pos.y);
+					MoveRook(rook, { pos.x + 1, pos.y });
+				}
+				else if (pos.x - prePos.x == 2) {
+					Piece* rook = Board<Piece>::GetSpace(7, pos.y);
+					MoveRook(rook, { pos.x - 1, pos.y });
+				}
 			}
 
 			return true;
@@ -45,12 +47,10 @@ public:
 			}
 		}
 
-		// CHECK SYSTEM
-		
 		Piece* r1 = Board<Piece>::GetSpace(0, pos.y);
 		Piece* r2 = Board<Piece>::GetSpace(7, pos.y);
 
-		if (moveNum == 0) {
+		if (moveNum == 0 && !inCheck) {
 			if (IsRook(r1) && r1->GetMoveNum() == 0) {
 				bool pathCleared = true;
 

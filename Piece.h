@@ -6,6 +6,7 @@
 #include <vector>
 #include <typeinfo>
 #include <SFML\Graphics.hpp>
+#include <SFML\Audio.hpp>
 
 /// <summary>
 /// Blueprint class for more specific pieces
@@ -23,6 +24,8 @@ public:
 	// Constructors for pieces
 	inline Piece(int x, int y, color col, const sf::Vector2i& boardSize);
 	inline Piece(const Piece& copy) : pos(copy.pos), col(copy.col), boardSize(copy.boardSize) {}
+
+	inline ~Piece();
 
 	inline virtual bool Move(int x, int y, std::vector<std::pair<sf::Vector2i, Piece*>> legalMoves);
 
@@ -56,6 +59,14 @@ public:
 		return col;
 	}
 
+	const void SetCapture(Piece* capture) {
+		this->capture = capture;
+	}
+
+	Piece* GetCapture() {
+		return capture;
+	}
+
 	const int GetTurn() {
 		return turnNum;
 	}
@@ -72,12 +83,18 @@ protected:
 	sf::Vector2i pos = { 0, 0 };
 	color col = WHITE;
 
+	Piece* capture = nullptr;
+
 	sf::Vector2i boardSize;
 
 	int moveNum = 0;
 	int turnNum = 0;
 
 	bool inCheck = false;
+
+	sf::SoundBuffer moveSoundBuffer;
+	sf::SoundBuffer captureSoundBuffer;
+	sf::Sound *sounds[2] = { nullptr, nullptr };
 
 	inline virtual bool IsLegalMove(int x, int y);
 

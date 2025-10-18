@@ -3,6 +3,21 @@
 // Constructor for Pieces 
 Piece::Piece(int x, int y, color col, const sf::Vector2i& boardSize) : pos({x, y}), col(col), boardSize(boardSize) {
 	Board<Piece>::SetSpace(x, y, this);
+
+	// Sets up the game sounds
+	//__________________________________________________________
+	if (!moveSoundBuffer.loadFromFile("Audio/Move.mp3") || 
+		!captureSoundBuffer.loadFromFile("Audio/Capture.mp3"))
+		std::cout << "FAILED TO LOAD AUDIO FILE(S)" << std::endl;
+
+	sounds[0] = new sf::Sound(moveSoundBuffer);
+	sounds[1] = new sf::Sound(captureSoundBuffer);
+}
+
+Piece::~Piece() {
+	for (sf::Sound* sound : sounds) {
+		delete sound;
+	}
 }
 
 /// <summary>
@@ -16,8 +31,13 @@ bool Piece::Move(int x, int y, std::vector<std::pair<sf::Vector2i, Piece*>> lega
 		if (move.first == sf::Vector2i({ x, y })) {
 			
 			// Captures other piece
-			if (move.second != Board<Piece>::BLANK_SPACE)
+			if (move.second != Board<Piece>::BLANK_SPACE) {
+				capture = move.second;
 				Board<Piece>::SetSpace(move.second->pos.x, move.second->pos.y, nullptr);
+				sounds[1]->play();
+			}
+			else 
+				sounds[0]->play();
 
 			// Moves piece
 			Board<Piece>::SetSpace(pos.x, pos.y, nullptr);

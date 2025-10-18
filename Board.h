@@ -77,11 +77,35 @@ public:
 
 		// Draws spaces that are selected
 		for (sf::Vector2i spc : selectedSpcs) {
+			float radiusOffset = smallestScreenSide / 50;
+			sf::CircleShape circle(spcWidth / 2 - radiusOffset);
+			if (GetSpace(spc.x, spc.y) != nullptr) {
+				rect.setFillColor(sf::Color(112, 68, 68, 200));
+
+				circle.setFillColor(sf::Color(0, 0, 0, 0));
+				circle.setOutlineColor(sf::Color(186, 114, 114, 200));
+			}
+			else {
+				rect.setFillColor(sf::Color(115, 115, 115, 200));
+
+				circle.setFillColor(sf::Color(0, 0, 0, 0));
+				circle.setOutlineColor(sf::Color(165, 165, 165, 200));
+			}
+
 			rect.setPosition({ spc.x * spcWidth + centerOffset.x, spc.y * spcHeight + centerOffset.y });
-			rect.setFillColor(sf::Color(186, 114, 114, 200));
+			circle.setPosition({ spc.x * spcWidth + centerOffset.x + radiusOffset, spc.y * spcHeight + centerOffset.y + radiusOffset });
+			circle.setOutlineThickness(radiusOffset);
 
 			window.draw(rect);
+			window.draw(circle);
 		}
+
+		sf::RectangleShape boarderRect = sf::RectangleShape({ spcWidth * cols, spcHeight * rows });
+		boarderRect.setPosition({ centerOffset.x, centerOffset.y });
+		boarderRect.setFillColor(sf::Color(0, 0, 0, 0));
+		boarderRect.setOutlineColor(sf::Color(28, 17, 3));
+		boarderRect.setOutlineThickness(30);
+		window.draw(boarderRect);
 	}
 
 	// Translates coordinates to board spaces
