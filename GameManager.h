@@ -73,7 +73,8 @@ private:
 	bool Draw(sf::RenderWindow& window);
 
 	std::vector<Piece*> FindPieces(Piece::color col) const;
-	GameManager::classification classifyPiece(const Piece& piece);
+	GameManager::classification ClassifyPiece(const Piece& piece);
 	void GetDrawingUtensils(sf::Texture& tex, sf::Vector2i& texSize, sf::IntRect rects[], float& smallestScreenSide, sf::RenderWindow& window);
+	std::string ConvertMoveToString(Piece& piece);
 };
 

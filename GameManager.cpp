@@ -48,7 +48,7 @@ GameManager::~GameManager() {
 void GameManager::DrawScreen(sf::RenderWindow& window) {
 	DrawBackground(window);
 	DrawBoard(window);
-	
+
 	if (held == nullptr)
 		gameOver = Draw(window) || Checkmate(window);
 }
@@ -96,7 +96,7 @@ void GameManager::DrawPieces(sf::RenderWindow& window) {
 			if (board.GetSpace(i, j) != board.BLANK_SPACE) {
 				board.GetSpace(i, j)->Update(turn);
 
-				classification type = classifyPiece(*board.GetSpace(i, j));
+				classification type = ClassifyPiece(*board.GetSpace(i, j));
 
 				sf::Sprite sprite(tex);
 				sprite.setTextureRect(rects[((*board.GetSpace(i, j)).GetColor() == Piece::WHITE) ? type + 6 : type]);
@@ -116,7 +116,7 @@ void GameManager::DrawCapturedPieces(sf::RenderWindow& window) {
 
 	int whitePos = 0, blackPos = 0;
 	for (Piece* pieceCaptured : captured) {
-		classification type = classifyPiece(*pieceCaptured);
+		classification type = ClassifyPiece(*pieceCaptured);
 
 		sf::Sprite sprite(tex);
 		if ((*pieceCaptured).GetColor() == Piece::WHITE) {
@@ -186,7 +186,7 @@ void GameManager::HoldPiece(sf::RenderWindow& window) {
 	if (held != nullptr) {
 		board.SetSpace(held->GetPosition().x, held->GetPosition().y, nullptr);
 
-		classification type = classifyPiece(*held);
+		classification type = ClassifyPiece(*held);
 
 		sf::Texture tex;
 		sf::Vector2i texSize;
@@ -219,8 +219,8 @@ void GameManager::ReleasePiece(sf::RenderWindow& window) {
 }
 void GameManager::MovePiece(Piece* piece) {
 	if (piece->GetCapture() != nullptr) {
-		captured.push_back(selected->GetCapture());
-		selected->SetCapture(nullptr);
+		captured.push_back(piece->GetCapture());
+		piece->SetCapture(nullptr);
 	}
 
 	turn++;
@@ -228,6 +228,8 @@ void GameManager::MovePiece(Piece* piece) {
 
 	lastMoved = piece;
 	fiftyMoveLimit++;
+
+	std::cout << ConvertMoveToString(*piece) << std::endl;
 }
 void GameManager::SelectPromotion() {
 	int choice = 0;
@@ -377,7 +379,7 @@ bool GameManager::CheckDraw() {
 
 
 	// 50-MOVE RULE
-	if ((lastMoved != nullptr && classifyPiece(*lastMoved) == PAWN) || numberCaptured != captured.size()) {
+	if ((lastMoved != nullptr && ClassifyPiece(*lastMoved) == PAWN) || numberCaptured != captured.size()) {
 		fiftyMoveLimit = 0;
 		numberCaptured = captured.size();
 	}
@@ -413,7 +415,7 @@ std::vector<Piece*> GameManager::FindPieces(Piece::color col) const {
 	}
 	return pieces;
 }
-GameManager::classification GameManager::classifyPiece(const Piece& piece) {
+GameManager::classification GameManager::ClassifyPiece(const Piece& piece) {
 	std::string pieceName = typeid(piece).name();
 
 	classification type = PAWN;
@@ -438,4 +440,36 @@ void GameManager::GetDrawingUtensils(sf::Texture& tex, sf::Vector2i& texSize, sf
 		rects[i] = sf::IntRect({ texSize.x * ((i >= 6) ? (i - 6) : i) / 6, ((i >= 6) ? texSize.y / 2 : 0) }, { texSize.x / 6, texSize.y / 2 });
 
 	smallestScreenSide = fminf(static_cast<float>(window.getSize().x), static_cast<float>(window.getSize().y));
+}
+std::string GameManager::ConvertMoveToString(Piece& piece) {
+	std::string result = "";
+
+	classification type = ClassifyPiece(piece);
+	switch (type) {
+	case PAWN:
+		break;
+	case KNIGHT:
+		result = "N";
+		break;
+	case BISHOP:
+		result = "B";
+		break;
+	case ROOK:
+		result = "R";
+		break;
+	case QUEEN:
+		result = "Q";
+		break;
+	case KING:
+		result = "K";
+		break;
+	}
+	result += board.PositionToString(piece.GetPosition().x, piece.GetPosition().y);
+
+	if (gameOver && !CheckDraw())
+		result += "#";
+	else if (IsChecked(static_cast<Piece::color>(abs(piece.GetColor() - 1))))
+		result += "+";
+
+	return result;
 }

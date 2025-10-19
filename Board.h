@@ -113,6 +113,17 @@ public:
 		return sf::Vector2i({ static_cast<int>((x - centerOffset.x) / spcWidth), static_cast<int>((y - centerOffset.y) / spcHeight) });
 	}
 
+	std::string PositionToString(int x, int y) {
+		char file = static_cast<char>(x + 97);
+		char rank = static_cast<char>(rows - y + 48);
+
+		std::string result;
+		result.push_back(file);
+		result.push_back(rank);
+
+		return result;
+	}
+
 	void AddSelectedSpace(int row, int col) {
 		if ((row > -1 && row < rows) && (col > -1 && col < cols))
 			selectedSpcs.push_back(sf::Vector2i(row, col));
