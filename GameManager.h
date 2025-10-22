@@ -29,6 +29,7 @@ private:
 	Piece* selected = nullptr; 
 	Piece* held = nullptr;
 	Piece* lastMoved = nullptr;
+	Piece* lastMovedCheck = nullptr;
 
 	// All the types of pieces in chess
 	enum classification {
@@ -42,6 +43,7 @@ private:
 	classification type = KING;
 
 	std::vector<Piece*> captured;
+	bool captureTurn = false;
 	std::vector<sf::Vector2i> moveHistory;
 
 	int turn = 0; // Number of turns

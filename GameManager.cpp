@@ -51,6 +51,11 @@ void GameManager::DrawScreen(sf::RenderWindow& window) {
 
 	if (held == nullptr)
 		gameOver = Draw(window) || Checkmate(window);
+
+	if (lastMoved != lastMovedCheck) {
+		std::cout << ConvertMoveToString(*lastMoved) << std::endl;
+		lastMovedCheck = lastMoved;
+	}
 }
 /// <summary>
 /// Renders the background color behind the board
@@ -156,9 +161,8 @@ void GameManager::ControlBoard(sf::RenderWindow& window) {
 			SelectPiece(window);
 	}
 
-	if (!sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)) {
+	if (!sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
 		ReleasePiece(window);
-	}
 }
 void GameManager::SelectPiece(sf::RenderWindow& window) {
 	board.ClearSelectedSpaces();
@@ -221,15 +225,16 @@ void GameManager::MovePiece(Piece* piece) {
 	if (piece->GetCapture() != nullptr) {
 		captured.push_back(piece->GetCapture());
 		piece->SetCapture(nullptr);
+		captureTurn = true;
 	}
+	else
+		captureTurn = false;
 
 	turn++;
 	moveHistory.push_back(piece->GetPosition());
 
 	lastMoved = piece;
 	fiftyMoveLimit++;
-
-	std::cout << ConvertMoveToString(*piece) << std::endl;
 }
 void GameManager::SelectPromotion() {
 	int choice = 0;
@@ -443,7 +448,6 @@ void GameManager::GetDrawingUtensils(sf::Texture& tex, sf::Vector2i& texSize, sf
 }
 std::string GameManager::ConvertMoveToString(Piece& piece) {
 	std::string result = "";
-
 	classification type = ClassifyPiece(piece);
 	switch (type) {
 	case PAWN:
@@ -464,10 +468,18 @@ std::string GameManager::ConvertMoveToString(Piece& piece) {
 		result = "K";
 		break;
 	}
+
+	if (captureTurn)
+		result += "x";
+
 	result += board.PositionToString(piece.GetPosition().x, piece.GetPosition().y);
 
-	if (gameOver && !CheckDraw())
-		result += "#";
+	if (gameOver) {
+		if (CheckDraw())
+			result = "1/2-1/2";
+		else
+			result += "#";
+	}
 	else if (IsChecked(static_cast<Piece::color>(abs(piece.GetColor() - 1))))
 		result += "+";
 
