@@ -12,11 +12,9 @@ template<typename T>
 class Board
 {
 public:
-	static inline const T* BLANK_SPACE; // Is a blank space
 
 	// Constructor for board
 	Board<T>(int rows = 8, int cols = 8) : rows(rows), cols(cols) {
-		BLANK_SPACE = nullptr;
 
 		// Sets up the board as a 2 dimensional array
 		board = new T * *[rows];
@@ -28,6 +26,10 @@ public:
 				board[i][j] = nullptr;
 			}
 		}
+	}
+
+	Board<T>(const Board& copy) {
+		board = copy;
 	}
 
 	// Deletes the board
@@ -137,17 +139,25 @@ public:
 		selectedSpcs.clear();
 	}
 
-	static T*** GetBoard() {
+	void operator= (Board copy){
+		for (int i = 0; i < rows; ++i) {
+			for (int j = 0; j < cols; ++j) {
+				board[i][j] = copy.GetSpace(i, j);
+			}
+		}
+	}
+
+	T*** GetBoard() {
 		return board;
 	}
 
-	static void SetSpace(int row, int col, T* obj) {
-		if ((row > -1 && row < sizeof(*board)) && (col > -1 && col < sizeof(*board[0])))
+	void SetSpace(int row, int col, T* obj) {
+		if ((row > -1 && row < rows) && (col > -1 && col < cols))
 			board[row][col] = obj;
 	}
 
-	static T* GetSpace(int row, int col) {
-		if ((row > -1 && row < sizeof(*board)) && (col > -1 && col < sizeof(*board[0])))
+	T* GetSpace(int row, int col) {
+		if ((row > -1 && row < rows) && (col > -1 && col < cols))
 			return board[row][col];
 		else
 			return nullptr;
@@ -167,7 +177,7 @@ public:
 
 private:
 	const int rows, cols;
-	static inline T*** board = new T**[0];
+	T*** board = new T**[0];
 
 	float spcWidth = 0.f;
 	float spcHeight = 0.f;

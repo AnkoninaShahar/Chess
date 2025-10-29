@@ -22,8 +22,8 @@ public:
 	};
 
 	// Constructors for pieces
-	inline Piece(int x, int y, color col, const sf::Vector2i& boardSize);
-	inline Piece(const Piece& copy) : pos(copy.pos), col(copy.col), boardSize(copy.boardSize) {}
+	inline Piece(int x, int y, color col, Board<Piece>& board);
+	inline Piece(const Piece& copy) : pos(copy.pos), col(copy.col), board(copy.board) {}
 
 	inline ~Piece();
 
@@ -85,7 +85,7 @@ protected:
 
 	Piece* capture = nullptr;
 
-	sf::Vector2i boardSize;
+	Board<Piece>& board;
 
 	int moveNum = 0;
 	int turnNum = 0;

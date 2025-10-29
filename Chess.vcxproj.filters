@@ -27,6 +27,9 @@
     <ClCompile Include="Bot.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="NotationManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameManager.h">
@@ -59,7 +62,10 @@
     <ClInclude Include="Piece.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="PieceUtilz.h">
+    <ClInclude Include="Utilz.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NotationManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

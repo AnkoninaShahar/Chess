@@ -17,11 +17,11 @@ public:
 		if (Piece::Move(x, y, legalMoves)) {
 			if (moveNum == 1) {
 				if (prePos.x - pos.x == 2) {
-					Piece* rook = Board<Piece>::GetSpace(0, pos.y);
+					Piece* rook = board.GetSpace(0, pos.y);
 					MoveRook(rook, { pos.x + 1, pos.y });
 				}
 				else if (pos.x - prePos.x == 2) {
-					Piece* rook = Board<Piece>::GetSpace(7, pos.y);
+					Piece* rook = board.GetSpace(7, pos.y);
 					MoveRook(rook, { pos.x - 1, pos.y });
 				}
 			}
@@ -43,40 +43,40 @@ public:
 				if (i == 0 && j == 0)
 					continue;
 				if (IsLegalMove(pos.x + i, pos.y + j))
-					moves.push_back(std::pair<sf::Vector2i, Piece*>({ pos.x + i, pos.y + j }, Board<Piece>::GetSpace(pos.x + i, pos.y + j)));
+					moves.push_back(std::pair<sf::Vector2i, Piece*>({ pos.x + i, pos.y + j }, board.GetSpace(pos.x + i, pos.y + j)));
 			}
 		}
 
-		Piece* r1 = Board<Piece>::GetSpace(0, pos.y);
-		Piece* r2 = Board<Piece>::GetSpace(7, pos.y);
+		Piece* r1 = board.GetSpace(0, pos.y);
+		Piece* r2 = board.GetSpace(7, pos.y);
 
 		if (moveNum == 0 && !inCheck) {
 			if (IsRook(r1) && r1->GetMoveNum() == 0) {
 				bool pathCleared = true;
 
 				for (int i = 1; i <= 3; ++i) {
-					if (Board<Piece>::GetSpace(i, pos.y) != Board<Piece>::BLANK_SPACE) {
+					if (board.GetSpace(i, pos.y) != nullptr) {
 						pathCleared = false;
 						break;
 					}
 				}
 
 				if (pathCleared)
-					moves.push_back(std::pair<sf::Vector2i, Piece*>({ pos.x - 2, pos.y }, Board<Piece>::GetSpace(pos.x - 2, pos.y)));
+					moves.push_back(std::pair<sf::Vector2i, Piece*>({ pos.x - 2, pos.y }, board.GetSpace(pos.x - 2, pos.y)));
 			}
 
 			if (IsRook(r2) && r2->GetMoveNum() == 0) {
 				bool pathCleared = true;
 
 				for (int i = 5; i <= 6; ++i) {
-					if (Board<Piece>::GetSpace(i, pos.y) != Board<Piece>::BLANK_SPACE) {
+					if (board.GetSpace(i, pos.y) != nullptr) {
 						pathCleared = false;
 						break;
 					}
 				}
 
 				if (pathCleared)
-					moves.push_back(std::pair<sf::Vector2i, Piece*>({ pos.x + 2, pos.y }, Board<Piece>::GetSpace(pos.x + 2, pos.y)));
+					moves.push_back(std::pair<sf::Vector2i, Piece*>({ pos.x + 2, pos.y }, board.GetSpace(pos.x + 2, pos.y)));
 			}
 		}
 
@@ -102,8 +102,8 @@ public:
 	/// <param name="r"> The rook being moved </param>
 	/// <param name="pos"> The new position of the rook </param>
 	const void MoveRook(Piece* r, sf::Vector2i pos) {
-		Board<Piece>::SetSpace(r->GetPosition().x, this->pos.y, nullptr);
-		Board<Piece>::SetSpace(pos.x, this->pos.y, r);
+		board.SetSpace(r->GetPosition().x, this->pos.y, nullptr);
+		board.SetSpace(pos.x, this->pos.y, r);
 
 		r->SetPosition(pos);
 	}

@@ -1,8 +1,8 @@
 #include "Piece.h"
 
 // Constructor for Pieces 
-Piece::Piece(int x, int y, color col, const sf::Vector2i& boardSize) : pos({x, y}), col(col), boardSize(boardSize) {
-	Board<Piece>::SetSpace(x, y, this);
+Piece::Piece(int x, int y, color col, Board<Piece>& board) : pos({x, y}), col(col), board(board) {
+	board.SetSpace(x, y, this);
 
 	// Sets up the game sounds
 	//__________________________________________________________
@@ -31,17 +31,17 @@ bool Piece::Move(int x, int y, std::vector<std::pair<sf::Vector2i, Piece*>> lega
 		if (move.first == sf::Vector2i({ x, y })) {
 			
 			// Captures other piece
-			if (move.second != Board<Piece>::BLANK_SPACE) {
+			if (move.second != nullptr) {
 				capture = move.second;
-				Board<Piece>::SetSpace(move.second->pos.x, move.second->pos.y, nullptr);
+				board.SetSpace(move.second->pos.x, move.second->pos.y, nullptr);
 				sounds[1]->play();
 			}
 			else 
 				sounds[0]->play();
 
 			// Moves piece
-			Board<Piece>::SetSpace(pos.x, pos.y, nullptr);
-			Board<Piece>::SetSpace(x, y, this);
+			board.SetSpace(pos.x, pos.y, nullptr);
+			board.SetSpace(x, y, this);
 			pos = { x, y };
 
 			moveNum++;
@@ -58,9 +58,9 @@ bool Piece::Move(int x, int y, std::vector<std::pair<sf::Vector2i, Piece*>> lega
 /// <param name="y"> y-coordinate of a move </param>
 /// <returns> True: move is legal; False: move is illegal </returns>
 bool Piece::IsLegalMove(int x, int y) {
-	bool isOutOfBounds = (x <= -1 || x >= boardSize.x) || (y <= -1 || y >= boardSize.y);
+	bool isOutOfBounds = (x <= -1 || x >= board.GetSize().x) || (y <= -1 || y >= board.GetSize().y);
 	if (!isOutOfBounds) {
-		bool isOnOwn = (Board<Piece>::GetSpace(x, y) != Board<Piece>::BLANK_SPACE) && ((*Board<Piece>::GetSpace(x, y)).GetColor() == col);
+		bool isOnOwn = (board.GetSpace(x, y) != nullptr) && ((*board.GetSpace(x, y)).GetColor() == col);
 		return !isOnOwn;
 	}
 	else
@@ -77,11 +77,11 @@ const std::vector<std::pair<sf::Vector2i, Piece*>> Piece::CalculateLineMoves(sf:
 
 	sf::Vector2i nextMove = sf::Vector2i({ pos.x + dir.x, pos.y + dir.y });
 	while (IsLegalMove(nextMove.x, nextMove.y)) {
-		if (Board<Piece>::GetSpace(nextMove.x, nextMove.y) != Board<Piece>::BLANK_SPACE) {
-			moves.push_back(std::pair<sf::Vector2i, Piece*>(nextMove, Board<Piece>::GetSpace(nextMove.x, nextMove.y)));
+		if (board.GetSpace(nextMove.x, nextMove.y) != nullptr) {
+			moves.push_back(std::pair<sf::Vector2i, Piece*>(nextMove, board.GetSpace(nextMove.x, nextMove.y)));
 			break;
 		}
-		moves.push_back(std::pair<sf::Vector2i, Piece*>(nextMove, Board<Piece>::GetSpace(nextMove.x, nextMove.y)));
+		moves.push_back(std::pair<sf::Vector2i, Piece*>(nextMove, board.GetSpace(nextMove.x, nextMove.y)));
 		nextMove = sf::Vector2i({ nextMove.x + dir.x, nextMove.y + dir.y });
 	}
 

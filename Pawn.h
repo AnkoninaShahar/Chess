@@ -42,25 +42,25 @@ public:
 		for (int i = -1; i <= 1; ++i) {
 			if (i != 0 && IsLegalMove(pos.x + i, pos.y + dir)) {
 				// Take diagonally
-				if (Board<Piece>::GetSpace(pos.x + i, pos.y + dir) != Board<Piece>::BLANK_SPACE) {
-					moves.push_back(std::pair<sf::Vector2i, Piece*>({ pos.x + i, pos.y + dir }, Board<Piece>::GetSpace(pos.x + i, pos.y + dir)));
+				if (board.GetSpace(pos.x + i, pos.y + dir) != nullptr) {
+					moves.push_back(std::pair<sf::Vector2i, Piece*>({ pos.x + i, pos.y + dir }, board.GetSpace(pos.x + i, pos.y + dir)));
 				}
 
 				// En Passant
-				if (enPassantablePiece != nullptr && Board<Piece>::GetSpace(pos.x + i, pos.y) != Board<Piece>::BLANK_SPACE) {
-					if (enPassantablePiece->first == *Board<Piece>::GetSpace(pos.x + i, pos.y) && (turnNum == enPassantablePiece->second + 1))
-						moves.push_back(std::pair<sf::Vector2i, Piece*>({ pos.x + i, pos.y + dir }, Board<Piece>::GetSpace(pos.x + i, pos.y)));
+				if (enPassantablePiece != nullptr && board.GetSpace(pos.x + i, pos.y) != nullptr) {
+					if (enPassantablePiece->first == *board.GetSpace(pos.x + i, pos.y) && (turnNum == enPassantablePiece->second + 1))
+						moves.push_back(std::pair<sf::Vector2i, Piece*>({ pos.x + i, pos.y + dir }, board.GetSpace(pos.x + i, pos.y)));
 				}
 			}
 			// Move one space forward
-			else if (i == 0 && IsLegalMove(pos.x, pos.y + dir) && Board<Piece>::GetSpace(pos.x, pos.y + dir) == Board<Piece>::BLANK_SPACE)
-				moves.push_back(std::pair<sf::Vector2i, Piece*>({ pos.x, pos.y + dir }, Board<Piece>::GetSpace(pos.x, pos.y + dir)));
+			else if (i == 0 && IsLegalMove(pos.x, pos.y + dir) && board.GetSpace(pos.x, pos.y + dir) == nullptr)
+				moves.push_back(std::pair<sf::Vector2i, Piece*>({ pos.x, pos.y + dir }, board.GetSpace(pos.x, pos.y + dir)));
 		}
 
 		// Move 2 spaces first move
 		if (moveNum == 0) {
-			if (IsLegalMove(pos.x, pos.y + dir) && Board<Piece>::GetSpace(pos.x, pos.y + 2 * dir) == nullptr)
-				moves.push_back(std::pair<sf::Vector2i, Piece*>({ pos.x, pos.y + 2 * dir }, Board<Piece>::GetSpace(pos.x, pos.y + 2 * dir)));
+			if (IsLegalMove(pos.x, pos.y + dir) && board.GetSpace(pos.x, pos.y + 2 * dir) == nullptr && board.GetSpace(pos.x, pos.y + dir) == nullptr)
+				moves.push_back(std::pair<sf::Vector2i, Piece*>({ pos.x, pos.y + 2 * dir }, board.GetSpace(pos.x, pos.y + 2 * dir)));
 		}
 
 		return moves;
@@ -69,16 +69,16 @@ public:
 	const void Promote(int choice) override {
 		switch (choice) {
 		case 1:
-			new Queen(pos.x, pos.y, col, boardSize);
+			new Queen(pos.x, pos.y, col, board);
 			break;
 		case 2:
-			new Rook(pos.x, pos.y, col, boardSize);
+			new Rook(pos.x, pos.y, col, board);
 			break;
 		case 3:
-			new Knight(pos.x, pos.y, col, boardSize);
+			new Knight(pos.x, pos.y, col, board);
 			break;
 		default:
-			new Bishop(pos.x, pos.y, col, boardSize);
+			new Bishop(pos.x, pos.y, col, board);
 			break;
 		}
 	}

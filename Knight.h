@@ -22,7 +22,7 @@ public:
 				if (i == 0 || j == 0)
 					continue;
 				if (abs(i) != abs(j) && IsLegalMove(pos.x + i, pos.y + j))
-					moves.push_back(std::pair<sf::Vector2i, Piece*>({ pos.x + i, pos.y + j }, Board<Piece>::GetSpace(pos.x + i, pos.y + j)));
+					moves.push_back(std::pair<sf::Vector2i, Piece*>({ pos.x + i, pos.y + j }, board.GetSpace(pos.x + i, pos.y + j)));
 			}
 		}
 
