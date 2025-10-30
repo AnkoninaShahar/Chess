@@ -15,6 +15,8 @@
 #include <iostream>
 #include <SFML\Graphics.hpp>
 
+using namespace Utilz;
+
 /// <summary>
 /// Manages all the aspects of this game
 /// </summary>
@@ -26,53 +28,22 @@ public:
 
 	void DrawScreen(sf::RenderWindow& window);
 
-	bool IsChecked(Piece::color col) const;
-	bool CheckDraw();
-
-	bool IsGameOver() {
-		return gameOver;
-	}
-
-	// All the types of pieces in chess
-	enum class Classification {
-		QUEEN,
-		KING,
-		ROOK,
-		KNIGHT,
-		BISHOP,
-		PAWN,
-	};
-
-	Classification Classify(const Piece& piece) {
-		std::string pieceName = typeid(piece).name();
-
-		Classification type = Classification::PAWN;
-
-		if (pieceName.find("Pawn") != std::string::npos) type = Classification::PAWN;
-		else if (pieceName.find("Knight") != std::string::npos) type = Classification::KNIGHT;
-		else if (pieceName.find("Bishop") != std::string::npos) type = Classification::BISHOP;
-		else if (pieceName.find("Rook") != std::string::npos) type = Classification::ROOK;
-		else if (pieceName.find("Queen") != std::string::npos) type = Classification::QUEEN;
-		else if (pieceName.find("King") != std::string::npos) type = Classification::KING;
-
-		return type;
-	}
-
 private:
 	mutable Board<Piece> board; // the Board
 	Piece* selected = nullptr; 
 	Piece* held = nullptr;
 	Piece* lastMoved = nullptr;
 
-	//NotationManager* printer = nullptr;
+	enum status {
+		ONGOING,
+		DRAW,
+		CHECKMATE
+	};
+	status game = ONGOING;
 
-
-	//Piece* lastMovedCheck = nullptr;
-
-	//classification type = KING;
+	NotationManager* printer = nullptr;
 
 	std::vector<Piece*> captured;
-	//bool captureTurn = false;
 	std::vector<sf::Vector2i> moveHistory;
 
 	int turn = 0; // Number of turns
@@ -96,9 +67,11 @@ private:
 
 	void DrawCapturedPieces(sf::RenderWindow& window);
 
+	bool IsChecked(Piece::color col) const;
 	std::vector<std::pair<sf::Vector2i, Piece*>> CalculateCheckMoves(Piece* p);
 	bool Checkmate(sf::RenderWindow& window);
 
+	bool CheckDraw();
 	bool Draw(sf::RenderWindow& window);
 
 	std::vector<Piece*> FindPieces(Piece::color col) const;

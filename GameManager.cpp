@@ -4,7 +4,7 @@
 GameManager::GameManager() {
 	captured.reserve(30);
 
-	//printer = new NotationManager(board);
+	printer = new NotationManager(board);
 
 	// Sets up the game pieces
 	//__________________________________________________________
@@ -51,13 +51,19 @@ void GameManager::DrawScreen(sf::RenderWindow& window) {
 	DrawBackground(window);
 	DrawBoard(window);
 
-	if (held == nullptr)
+	if (held == nullptr) {
 		gameOver = Draw(window) || Checkmate(window);
 
-	//if (lastMoved != printer->GetLastMoved()) {
-	//	std::cout << printer->ConvertMoveToString(*lastMoved) << std::endl;
-	//	printer->SetLastMoved(lastMoved);
-	//}
+	}
+
+	if (gameOver) {
+		printer->SetGameStatus(game);
+	}
+
+	if (lastMoved != printer->GetLastMoved()) {
+		std::cout << printer->ConvertMoveToString(*lastMoved) << std::endl;
+		printer->SetLastMoved(lastMoved);
+	}
 }
 /// <summary>
 /// Renders the background color behind the board
@@ -103,7 +109,7 @@ void GameManager::DrawPieces(sf::RenderWindow& window) {
 			if (board.GetSpace(i, j) != nullptr) {
 				board.GetSpace(i, j)->Update(turn);
 
-				GameManager::Classification type = Classify(*board.GetSpace(i, j));
+				Utilz::Type::classification type = Utilz::Type::Classify(*board.GetSpace(i, j));
 				int typeValue = static_cast<int>(type);
 
 				sf::Sprite sprite(tex);
@@ -124,7 +130,7 @@ void GameManager::DrawCapturedPieces(sf::RenderWindow& window) {
 
 	int whitePos = 0, blackPos = 0;
 	for (Piece* pieceCaptured : captured) {
-		GameManager::Classification type = Classify(*pieceCaptured);
+		Utilz::Type::classification type = Utilz::Type::Classify(*pieceCaptured);
 		int typeValue = static_cast<int>(type);
 
 		sf::Sprite sprite(tex);
@@ -194,7 +200,7 @@ void GameManager::HoldPiece(sf::RenderWindow& window) {
 	if (held != nullptr) {
 		board.SetSpace(held->GetPosition().x, held->GetPosition().y, nullptr);
 
-		GameManager::Classification type = Classify(*held);
+		Utilz::Type::classification type = Utilz::Type::Classify(*held);
 		int typeValue = static_cast<int>(type);
 
 		sf::Texture tex;
@@ -230,11 +236,13 @@ void GameManager::MovePiece(Piece* piece) {
 	if (piece->GetCapture() != nullptr) {
 		captured.push_back(piece->GetCapture());
 		piece->SetCapture(nullptr);
-		//printer->SetCaptured(true);
+		printer->SetCaptured(true);
 	}
 	else {
-		//printer->SetCaptured(false);
+		printer->SetCaptured(false);
 	}
+
+	printer->SetChecked(IsChecked(static_cast<Piece::color>(abs(piece->GetColor() - 1))));
 
 	turn++;
 	moveHistory.push_back(piece->GetPosition());
@@ -333,6 +341,8 @@ bool GameManager::Checkmate(sf::RenderWindow& window) {
 		text += " WINS!";
 
 		DrawText(text, font, window);
+
+		game = CHECKMATE;
 		return true;
 	}
 	return false;
@@ -390,7 +400,7 @@ bool GameManager::CheckDraw() {
 
 
 	// 50-MOVE RULE
-	if ((lastMoved != nullptr && GameManager::Classify(*lastMoved) == Classification::PAWN) || numberCaptured != captured.size()) {
+	if ((lastMoved != nullptr && Utilz::Type::Classify(*lastMoved) == Utilz::Type::classification::PAWN) || numberCaptured != captured.size()) {
 		fiftyMoveLimit = 0;
 		numberCaptured = captured.size();
 	}
@@ -405,6 +415,7 @@ bool GameManager::Draw(sf::RenderWindow& window) {
 		std::string text = "DRAW!";
 
 		DrawText(text, font, window);
+		game = DRAW;
 		return true;
 	}
 	return false;
