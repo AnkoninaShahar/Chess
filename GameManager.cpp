@@ -297,6 +297,7 @@ bool GameManager::IsChecked(Piece::color col) const {
 
 	return false;
 }
+
 std::vector<std::pair<sf::Vector2i, Piece*>> GameManager::CalculateCheckMoves(Piece* p) {
 	std::vector<std::pair<sf::Vector2i, Piece*>> allMoves = p->CalculateLegalMoves();
 
