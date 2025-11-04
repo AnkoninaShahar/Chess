@@ -2,9 +2,10 @@
 
 // Game Manager Constructor
 GameManager::GameManager() {
-	captured.reserve(30);
-
 	printer = new NotationManager(board);
+
+	players[0] = new Player(board, Piece::WHITE, *printer); 
+	players[1] = new Player(board, Piece::BLACK, *printer);
 
 	// Sets up the game pieces
 	//__________________________________________________________
@@ -51,19 +52,19 @@ void GameManager::DrawScreen(sf::RenderWindow& window) {
 	DrawBackground(window);
 	DrawBoard(window);
 
-	if (held == nullptr) {
+	if (players[turn % 2 == 0]->GetHeld() == nullptr)
 		gameOver = Draw(window) || Checkmate(window);
 
-	}
-
-	if (gameOver) {
+	if (gameOver)
 		printer->SetGameStatus(game);
+
+	if (players[turn % 2]->GetLastMoved() != printer->GetLastMoved()) {
+		std::cout << printer->ConvertMoveToString(*players[turn % 2]->GetLastMoved()) << std::endl;
+		printer->SetLastMoved(players[turn % 2]->GetLastMoved());
 	}
 
-	if (lastMoved != printer->GetLastMoved()) {
-		std::cout << printer->ConvertMoveToString(*lastMoved) << std::endl;
-		printer->SetLastMoved(lastMoved);
-	}
+	if (!gameOver)
+		turn = players[0]->GetMoveHistory().size() + players[1]->GetMoveHistory().size() + 1;
 }
 /// <summary>
 /// Renders the background color behind the board
@@ -88,7 +89,7 @@ void GameManager::DrawBoard(sf::RenderWindow& window) {
 	DrawPieces(window);
 
 	if (!gameOver)
-		ControlBoard(window);
+		players[turn % 2 == 0]->ControlBoard(window);
 
 	DrawCapturedPieces(window);
 }
@@ -101,13 +102,13 @@ void GameManager::DrawPieces(sf::RenderWindow& window) {
 	sf::Vector2i texSize;
 	sf::IntRect rects[12];
 	float smallestScreenSide;
-	GetDrawingUtensils(tex, texSize, rects, smallestScreenSide, window);
+	Utilz::General::GetDrawingUtensils(tex, texSize, rects, smallestScreenSide, window);
 
 	// Draws the sprites
 	for (int i = 0; i < board.GetSize().x; ++i) {
 		for (int j = 0; j < board.GetSize().y; ++j) {
 			if (board.GetSpace(i, j) != nullptr) {
-				board.GetSpace(i, j)->Update(turn);
+				board.GetSpace(i, j)->Update(static_cast<int>(turn));
 
 				Utilz::Type::classification type = Utilz::Type::Classify(*board.GetSpace(i, j));
 				int typeValue = static_cast<int>(type);
@@ -126,7 +127,11 @@ void GameManager::DrawCapturedPieces(sf::RenderWindow& window) {
 	sf::Vector2i texSize;
 	sf::IntRect rects[12];
 	float smallestScreenSide;
-	GetDrawingUtensils(tex, texSize, rects, smallestScreenSide, window);
+	Utilz::General::GetDrawingUtensils(tex, texSize, rects, smallestScreenSide, window);
+
+	std::vector<Piece*> captured = players[0]->GetCaptured();
+	for (Piece* capture : players[1]->GetCaptured())
+		captured.push_back(capture);
 
 	int whitePos = 0, blackPos = 0;
 	for (Piece* pieceCaptured : captured) {
@@ -158,183 +163,16 @@ void GameManager::DrawText(std::string text, sf::Font font, sf::RenderWindow& wi
 	window.draw(drawText);
 }
 
-// CONTROL SYSTEM
+
+// GAME END SYSTEM
 //___________________________________________________________________
 
-void GameManager::ControlBoard(sf::RenderWindow& window) {
-	if (selected != nullptr && selected->CanPromote())
-		SelectPromotion();
-	else if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)) {
-		if (mouseClicked)
-			HoldPiece(window);
-		else
-			SelectPiece(window);
-	}
-
-	if (!sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
-		ReleasePiece(window);
-}
-void GameManager::SelectPiece(sf::RenderWindow& window) {
-	board.ClearSelectedSpaces();
-	sf::Vector2i boardPos = board.PositionToSpace(sf::Mouse::getPosition(window).x, sf::Mouse::getPosition(window).y);
-	board.AddSelectedSpace(boardPos.x, boardPos.y);
-
-	if (selected != nullptr && boardPos != selected->GetPosition() && (turn % 2 == 0) == selected->GetColor()) {
-		if (selected->Move(boardPos.x, boardPos.y, CalculateCheckMoves(selected)) && !selected->CanPromote())
-			MovePiece(selected);
-		selected = nullptr;
-	}
-
-	selected = board.GetSpace(boardPos.x, boardPos.y);
-	if (selected != nullptr && (turn % 2 == 0) == selected->GetColor()) {
-		selected->SetCheck(IsChecked(selected->GetColor()));
-		for (std::pair<sf::Vector2i, Piece*> move : CalculateCheckMoves(selected)) {
-			board.AddSelectedSpace(move.first.x, move.first.y);
-		}
-	}
-
-	mouseClicked = true;
-}
-void GameManager::HoldPiece(sf::RenderWindow& window) {
-	held = selected;
-	if (held != nullptr) {
-		board.SetSpace(held->GetPosition().x, held->GetPosition().y, nullptr);
-
-		Utilz::Type::classification type = Utilz::Type::Classify(*held);
-		int typeValue = static_cast<int>(type);
-
-		sf::Texture tex;
-		sf::Vector2i texSize;
-		sf::IntRect rects[12];
-		float smallestScreenSide;
-		GetDrawingUtensils(tex, texSize, rects, smallestScreenSide, window);
-
-		sf::Sprite sprite(tex);
-		sprite.setTextureRect(rects[((*held).GetColor() == Piece::WHITE) ? typeValue + 6 : typeValue]);
-		sprite.setPosition({ static_cast<float>(sf::Mouse::getPosition(window).x) - 30 * smallestScreenSide / 500,
-			static_cast<float>(sf::Mouse::getPosition(window).y) - 30 * smallestScreenSide / 500 });
-		sprite.setScale({ smallestScreenSide / 500, smallestScreenSide / 500 });
-		window.draw(sprite);
-	}
-}
-void GameManager::ReleasePiece(sf::RenderWindow& window) {
-	if (held != nullptr) {
-		sf::Vector2i boardPos = board.PositionToSpace(sf::Mouse::getPosition(window).x, sf::Mouse::getPosition(window).y);
-
-		if (held != nullptr && boardPos != held->GetPosition() && (turn % 2 == 0) == held->GetColor()) {
-			if (held->Move(boardPos.x, boardPos.y, CalculateCheckMoves(held)) && !held->CanPromote())
-				MovePiece(held);
-			board.ClearSelectedSpaces();
-		}
-		board.SetSpace(held->GetPosition().x, held->GetPosition().y, held);
-	}
-
-	held = nullptr;
-	mouseClicked = false;
-}
-void GameManager::MovePiece(Piece* piece) {
-	if (piece->GetCapture() != nullptr) {
-		captured.push_back(piece->GetCapture());
-		piece->SetCapture(nullptr);
-		printer->SetCaptured(true);
-	}
-	else {
-		printer->SetCaptured(false);
-	}
-
-	printer->SetChecked(IsChecked(static_cast<Piece::color>(abs(piece->GetColor() - 1))));
-
-	turn++;
-	moveHistory.push_back(piece->GetPosition());
-
-	lastMoved = piece;
-	fiftyMoveLimit++;
-}
-void GameManager::SelectPromotion() {
-	int choice = 0;
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Num1))
-		choice = 1;
-	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Num2))
-		choice = 2;
-	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Num3))
-		choice = 3;
-	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Num4))
-		choice = 4;
-
-	if (choice != 0) {
-		selected->Promote(choice);
-		if (selected->GetCapture() != nullptr) {
-			captured.push_back(selected->GetCapture());
-			selected->SetCapture(nullptr);
-		}
-		turn++;
-		moveHistory.push_back(selected->GetPosition());
-
-		selected = nullptr;
-	}
-}
-
-// CHECKING SYSTEM
-//___________________________________________________________________
-
-bool GameManager::IsChecked(Piece::color col) const {
-	col = static_cast<Piece::color>(1 - col);
-	std::vector<Piece*> pieces = FindPieces(col);
-
-	for (Piece* p : pieces) {
-		for (const auto& move : p->CalculateLegalMoves()) {
-
-			Piece* space = board.GetSpace(move.first.x, move.first.y);
-			if (space != nullptr) {
-				std::string pieceName = typeid(*space).name();
-				if (pieceName.find("King") != std::string::npos && space->GetColor() != col) {
-					return true;
-				}
-			}
-
-		}
-	}
-
-	return false;
-}
-
-std::vector<std::pair<sf::Vector2i, Piece*>> GameManager::CalculateCheckMoves(Piece* p) {
-	std::vector<std::pair<sf::Vector2i, Piece*>> allMoves = p->CalculateLegalMoves();
-
-	std::vector<std::vector<Piece*>> boardState(board.GetSize().x, std::vector<Piece*>(board.GetSize().y, nullptr));
-	for (int i = 0; i < board.GetSize().x; ++i) {
-		for (int j = 0; j < board.GetSize().y; ++j) {
-			boardState.at(i).at(j) = board.GetSpace(i, j);
-		}
-	}
-
-	std::vector<std::pair<sf::Vector2i, Piece*>> checkMoves;
-	sf::Vector2i prePos;
-	for (std::pair<sf::Vector2i, Piece*> move : allMoves) {
-		prePos = { p->GetPosition().x, p->GetPosition().y };
-
-		board.SetSpace(p->GetPosition().x, p->GetPosition().y, nullptr);
-		board.SetSpace(move.first.x, move.first.y, p);
-
-		if (!IsChecked(p->GetColor()))
-			checkMoves.push_back(move);
-
-		for (int i = 0; i < board.GetSize().x; ++i) {
-			for (int j = 0; j < board.GetSize().y; ++j) {
-				board.SetSpace(i, j, boardState.at(i).at(j));
-			}
-		}
-	}
-
-	return checkMoves;
-}
 bool GameManager::Checkmate(sf::RenderWindow& window) {
-	std::vector<Piece*> pieces = FindPieces(static_cast<Piece::color>(turn % 2 == 0));
+	std::vector<Piece*> pieces = Utilz::General::FindPieces(board, static_cast<Piece::color>(turn % 2 == 0));
 
 	size_t numberOfMoves = 0;
-	for (Piece* piece : pieces) {
-		numberOfMoves += CalculateCheckMoves(piece).size();
-	}
+	for (Piece* piece : pieces)
+		numberOfMoves += players[turn % 2]->CalculateCheckMoves(piece).size();
 
 	if (numberOfMoves == 0) {
 		sf::Font font("Fonts/Maketa.ttf");
@@ -348,70 +186,8 @@ bool GameManager::Checkmate(sf::RenderWindow& window) {
 	}
 	return false;
 }
-
-// DRAWING SYSTEM
-//___________________________________________________________________
-
-bool GameManager::CheckDraw() {
-
-	// STALEMATE
-	Piece::color currentColor = static_cast<Piece::color>(turn % 2 == 0);
-	size_t totalMoves = 0;
-	for (Piece* piece : FindPieces(currentColor)) {
-		totalMoves += CalculateCheckMoves(piece).size();
-	}
-	if (totalMoves == 0 && !IsChecked(currentColor))
-		return true;
-
-	// THREEFOLD REPITITION
-	if (moveHistory.size() >= 6) {
-		if (moveHistory.at(moveHistory.size() - 1) == moveHistory.at(moveHistory.size() - 3) &&
-			moveHistory.at(moveHistory.size() - 3) == moveHistory.at(moveHistory.size() - 5)) {
-			if (moveHistory.at(moveHistory.size() - 2) == moveHistory.at(moveHistory.size() - 4) &&
-				moveHistory.at(moveHistory.size() - 4) == moveHistory.at(moveHistory.size() - 6))
-				return true;
-		}
-	}
-
-	// INSUFFICIENT MATERIAL
-	std::vector<Piece*> pieces = FindPieces(Piece::WHITE);
-	std::vector<Piece*> blackPieces = FindPieces(Piece::BLACK);
-	pieces.insert(pieces.end(), blackPieces.begin(), blackPieces.end());
-	if (pieces.size() <= 3) {
-		std::string remainingPiecesTypes[3] = { "", "", "" };
-		size_t index = 0;
-		for (Piece* piece : pieces) {
-			std::string pieceName = typeid(*piece).name();
-			remainingPiecesTypes[index] = pieceName;
-			index++;
-		}
-
-		int drawCount = 0;
-		for (std::string pieceType : remainingPiecesTypes) {
-			if (pieceType.find("King") != std::string::npos ||
-				pieceType.find("Knight") != std::string::npos ||
-				pieceType.find("Bishop") != std::string::npos ||
-				pieceType.length() == 0)
-				drawCount++;
-		}
-
-		if (drawCount == 3)
-			return true;
-	}
-
-
-	// 50-MOVE RULE
-	if ((lastMoved != nullptr && Utilz::Type::Classify(*lastMoved) == Utilz::Type::classification::PAWN) || numberCaptured != captured.size()) {
-		fiftyMoveLimit = 0;
-		numberCaptured = captured.size();
-	}
-	if (fiftyMoveLimit >= 100)
-		return true;
-
-	return false;
-}
 bool GameManager::Draw(sf::RenderWindow& window) {
-	if (CheckDraw()) {
+	if (players[turn % 2]->CheckDraw()) {
 		sf::Font font("Fonts/Maketa.ttf");
 		std::string text = "DRAW!";
 
@@ -420,33 +196,4 @@ bool GameManager::Draw(sf::RenderWindow& window) {
 		return true;
 	}
 	return false;
-}
-
-// UTILITY FUNCTIONS
-//___________________________________________________________________
-
-std::vector<Piece*> GameManager::FindPieces(Piece::color col) const {
-	std::vector<Piece*> pieces;
-	pieces.reserve(16);
-
-	for (int i = 0; i < board.GetSize().x; ++i) {
-		for (int j = 0; j < board.GetSize().y; ++j) {
-			Piece* p = board.GetSpace(i, j);
-			if (p != nullptr && p->GetColor() == col)
-				pieces.push_back(board.GetSpace(i, j));
-		}
-	}
-	return pieces;
-}
-void GameManager::GetDrawingUtensils(sf::Texture& tex, sf::Vector2i& texSize, sf::IntRect rects[], float& smallestScreenSide, sf::RenderWindow& window) {
-	// Loads the texture
-	if (!tex.loadFromFile("Sprites/Chess_Sprite_Sheet.png"))
-		window.close();
-
-	// Seperates the sprites
-	texSize = { static_cast<int>(tex.getSize().x), static_cast<int>(tex.getSize().y) };
-	for (int i = 0; i < 12; ++i)
-		rects[i] = sf::IntRect({ texSize.x * ((i >= 6) ? (i - 6) : i) / 6, ((i >= 6) ? texSize.y / 2 : 0) }, { texSize.x / 6, texSize.y / 2 });
-
-	smallestScreenSide = fminf(static_cast<float>(window.getSize().x), static_cast<float>(window.getSize().y));
 }

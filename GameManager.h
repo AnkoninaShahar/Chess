@@ -8,6 +8,7 @@
 #include "Rook.h"
 #include "Queen.h"
 #include "King.h"
+#include "Player.h"
 #include "NotationManager.h"
 #include "Utilz.h"
 
@@ -30,9 +31,8 @@ public:
 
 private:
 	mutable Board<Piece> board; // the Board
-	Piece* selected = nullptr; 
-	Piece* held = nullptr;
-	Piece* lastMoved = nullptr;
+
+	Player* players[2] = { nullptr, nullptr };
 
 	enum status {
 		ONGOING,
@@ -43,38 +43,19 @@ private:
 
 	NotationManager* printer = nullptr;
 
-	std::vector<Piece*> captured;
-	std::vector<sf::Vector2i> moveHistory;
-
-	int turn = 0; // Number of turns
-	size_t numberCaptured = 0;
-	int fiftyMoveLimit = 0;
+	size_t turn = 0; // Number of turns
 
 	bool gameOver = false;
-	bool mouseClicked = false;
 
 	void DrawBackground(sf::RenderWindow& window) const;
 	void DrawBoard(sf::RenderWindow& window);
 	void DrawPieces(sf::RenderWindow& window);
 	void DrawText(std::string text, sf::Font font, sf::RenderWindow& window);
 
-	void ControlBoard(sf::RenderWindow& window);
-	void SelectPiece(sf::RenderWindow& window);
-	void HoldPiece(sf::RenderWindow& window);
-	void ReleasePiece(sf::RenderWindow& window);
-	void MovePiece(Piece* piece);
-	void SelectPromotion();
-
 	void DrawCapturedPieces(sf::RenderWindow& window);
 
-	bool IsChecked(Piece::color col) const;
-	std::vector<std::pair<sf::Vector2i, Piece*>> CalculateCheckMoves(Piece* p);
 	bool Checkmate(sf::RenderWindow& window);
 
-	bool CheckDraw();
 	bool Draw(sf::RenderWindow& window);
-
-	std::vector<Piece*> FindPieces(Piece::color col) const;
-	void GetDrawingUtensils(sf::Texture& tex, sf::Vector2i& texSize, sf::IntRect rects[], float& smallestScreenSide, sf::RenderWindow& window);
 };
 
