@@ -79,6 +79,16 @@ public:
 		return pos == other.pos;
 	}
 
+	std::string GetInfo() {
+		std::string className = static_cast<std::string>(typeid(*this).name());
+		return "[ NAME: " + className.substr(className.find(' ')) +
+			", POSITION: (" + std::to_string(pos.x) + ", " + std::to_string(pos.y) + ") ]";
+	}
+
+	void Print() {
+		std::cout << GetInfo() << std::endl;
+	}
+
 protected:
 	sf::Vector2i pos = { 0, 0 };
 	color col = WHITE;

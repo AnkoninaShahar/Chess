@@ -98,6 +98,8 @@ void Player::MovePiece(Piece* piece) {
 
 	lastMoved = piece;
 	fiftyMoveLimit++;
+
+	selected = nullptr;
 }
 
 void Player::SelectPromotion() {
