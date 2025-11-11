@@ -119,10 +119,11 @@ void Player::SelectPromotion() {
 			captured.push_back(selected->GetCapture());
 			selected->SetCapture(nullptr);
 		}
-		//turn++;
 		moveHistory.push_back(selected->GetPosition());
 
 		selected = nullptr;
+
+		printer.SetPromotion(choice);
 	}
 }
 

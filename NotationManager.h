@@ -33,6 +33,10 @@ public:
 		this->captured = captured;
 	}
 
+	void SetPromotion(int choice) {
+		promotion = choice;
+	}
+
 private:
 	Board<Piece>& board;
 
@@ -40,5 +44,8 @@ private:
 	bool checked = false;
 	Piece* lastMoved = nullptr;
 	bool captured = false;
+	int promotion = 0;
+
+	void BaseNotation(std::string type, std::string& notation, Piece& piece);
 };
 
