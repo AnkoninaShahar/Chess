@@ -41,6 +41,22 @@ GameManager::GameManager() {
 GameManager::~GameManager() {
 }
 
+void GameManager::Update(sf::RenderWindow& window) {
+	current = players[turn % 2 == 0];
+
+	DrawScreen(window);
+
+	if (current->GetHeld() == nullptr)
+		gameOver = Draw(window) || Checkmate(window);
+
+	if (gameOver)
+		printer->SetGameStatus(game);
+	printer->Print(current->GetLastMoved());
+
+	if (!gameOver)
+		turn = players[0]->GetMoveHistory().size() + players[1]->GetMoveHistory().size() + 1;
+}
+
 // GRAPHICS SYSTEM
 //___________________________________________________________________
 
@@ -51,20 +67,6 @@ GameManager::~GameManager() {
 void GameManager::DrawScreen(sf::RenderWindow& window) {
 	DrawBackground(window);
 	DrawBoard(window);
-
-	if (players[turn % 2 == 0]->GetHeld() == nullptr)
-		gameOver = Draw(window) || Checkmate(window);
-
-	if (gameOver)
-		printer->SetGameStatus(game);
-
-	if (players[turn % 2]->GetLastMoved() != printer->GetLastMoved()) {
-		std::cout << printer->ConvertMoveToString(*players[turn % 2]->GetLastMoved()) << std::endl;
-		printer->SetLastMoved(players[turn % 2]->GetLastMoved());
-	}
-
-	if (!gameOver)
-		turn = players[0]->GetMoveHistory().size() + players[1]->GetMoveHistory().size() + 1;
 }
 /// <summary>
 /// Renders the background color behind the board
@@ -89,7 +91,7 @@ void GameManager::DrawBoard(sf::RenderWindow& window) {
 	DrawPieces(window);
 
 	if (!gameOver)
-		players[turn % 2 == 0]->ControlBoard(window);
+		current->ControlBoard(window);
 
 	DrawCapturedPieces(window);
 }
@@ -97,7 +99,7 @@ void GameManager::DrawBoard(sf::RenderWindow& window) {
 /// Renders the pieces
 /// </summary>
 /// <param name="window"> The window drawn on </param>
-void GameManager::DrawPieces(sf::RenderWindow& window) {
+void GameManager::DrawPieces(sf::RenderWindow& window) const {
 	sf::Texture tex;
 	sf::Vector2i texSize;
 	sf::IntRect rects[12];
@@ -122,7 +124,7 @@ void GameManager::DrawPieces(sf::RenderWindow& window) {
 		}
 	}
 }
-void GameManager::DrawCapturedPieces(sf::RenderWindow& window) {
+void GameManager::DrawCapturedPieces(sf::RenderWindow& window) const {
 	sf::Texture tex;
 	sf::Vector2i texSize;
 	sf::IntRect rects[12];
@@ -153,7 +155,7 @@ void GameManager::DrawCapturedPieces(sf::RenderWindow& window) {
 		window.draw(sprite);
 	}
 }
-void GameManager::DrawText(std::string text, sf::Font font, sf::RenderWindow& window) {
+void GameManager::DrawText(std::string text, sf::Font font, sf::RenderWindow& window) const {
 	sf::Text drawText(font, text, 20);
 	drawText.setPosition({ 20, 20 });
 	drawText.setOutlineColor(sf::Color::Black);

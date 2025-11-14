@@ -3,6 +3,7 @@
 Player::Player(Board<Piece>& board, Piece::color color, NotationManager& printer) : board(board), color(color), printer(printer) {}
 
 void Player::ControlBoard(sf::RenderWindow& window) {
+	lastMoved = nullptr;
 	if (selected != nullptr && selected->CanPromote())
 		SelectPromotion();
 	else if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)) {

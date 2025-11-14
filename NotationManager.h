@@ -11,6 +11,8 @@ class NotationManager
 public:
 	NotationManager(Board<Piece>& board) : board(board) {}
 
+	void Print(Piece* piece);
+
 	std::string ConvertMoveToString(Piece& piece);
 
 	void SetGameStatus(int status) {

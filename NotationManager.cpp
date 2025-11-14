@@ -1,5 +1,14 @@
 #include "NotationManager.h"
 
+void NotationManager::Print(Piece* piece) {
+	if (piece != nullptr) {
+		if (piece != lastMoved) {
+			std::cout << ConvertMoveToString(*piece) << std::endl;
+			lastMoved = piece;
+		}
+	}
+}
+
 std::string NotationManager::ConvertMoveToString(Piece& piece) {
 	std::string result = "";
 	Utilz::Type::classification type = Utilz::Type::Classify(piece);
