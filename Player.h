@@ -39,7 +39,13 @@ public:
 	Piece* GetHeld() {
 		return held;
 	}
-
+	
+	void Print() {
+		std::string heldInfo = (held != nullptr) ? held->GetInfo() : "None";
+		std::string selectedInfo = (selected != nullptr) ? selected->GetInfo() : "None";
+		std::cout << "HELD: " << heldInfo << "\tSELCTED: "
+			<< selectedInfo << "\tMOUSE CLICKED: " << mouseClicked << std::endl;
+	}
 
 private:
 	Board<Piece>& board;

@@ -27,12 +27,13 @@ public:
 	GameManager(); // Constructor for the Game Manager
 	~GameManager();
 
-	void DrawScreen(sf::RenderWindow& window);
+	void Update(sf::RenderWindow& window);
 
 private:
-	mutable Board<Piece> board; // the Board
+	Board<Piece> board; // the Board
 
 	Player* players[2] = { nullptr, nullptr };
+	Player* current = nullptr;
 
 	enum status {
 		ONGOING,
@@ -47,12 +48,14 @@ private:
 
 	bool gameOver = false;
 
+	void DrawScreen(sf::RenderWindow& window);
+
 	void DrawBackground(sf::RenderWindow& window) const;
 	void DrawBoard(sf::RenderWindow& window);
-	void DrawPieces(sf::RenderWindow& window);
-	void DrawText(std::string text, sf::Font font, sf::RenderWindow& window);
+	void DrawPieces(sf::RenderWindow& window) const;
+	void DrawText(std::string text, sf::Font font, sf::RenderWindow& window) const;
 
-	void DrawCapturedPieces(sf::RenderWindow& window);
+	void DrawCapturedPieces(sf::RenderWindow& window) const;
 
 	bool Checkmate(sf::RenderWindow& window);
 

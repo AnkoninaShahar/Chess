@@ -3,6 +3,7 @@
 Player::Player(Board<Piece>& board, Piece::color color, NotationManager& printer) : board(board), color(color), printer(printer) {}
 
 void Player::ControlBoard(sf::RenderWindow& window) {
+	lastMoved = nullptr;
 	if (selected != nullptr && selected->CanPromote())
 		SelectPromotion();
 	else if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)) {
@@ -98,6 +99,8 @@ void Player::MovePiece(Piece* piece) {
 
 	lastMoved = piece;
 	fiftyMoveLimit++;
+
+	selected = nullptr;
 }
 
 void Player::SelectPromotion() {
@@ -117,10 +120,11 @@ void Player::SelectPromotion() {
 			captured.push_back(selected->GetCapture());
 			selected->SetCapture(nullptr);
 		}
-		//turn++;
 		moveHistory.push_back(selected->GetPosition());
 
 		selected = nullptr;
+
+		printer.SetPromotion(choice);
 	}
 }
 

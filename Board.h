@@ -74,6 +74,33 @@ public:
 					rect.setFillColor(sf::Color(86, 112, 80));
 
 				window.draw(rect);
+
+				if (j == 0) {
+					sf::Font font("Fonts/Maketa.ttf");
+					char text = 49 + i;
+
+					sf::Text drawText(font, text, smallestScreenSide / 40);
+					drawText.setPosition({ rect.getPosition().x + 5, rect.getPosition().y + 5 });
+					if (rect.getFillColor() == sf::Color(207, 207, 207))
+						drawText.setFillColor(sf::Color(86, 112, 80));
+					else if (rect.getFillColor() == sf::Color(86, 112, 80))
+						drawText.setFillColor(sf::Color(207, 207, 207));
+
+					window.draw(drawText);
+				}
+				if (i == rows - 1) {
+					sf::Font font("Fonts/Maketa.ttf");
+					char text = 97 + j;
+
+					sf::Text drawText(font, text, smallestScreenSide / 40);
+					drawText.setPosition({ rect.getPosition().x + smallestScreenSide / 11, rect.getPosition().y + smallestScreenSide / 11 });
+					if (rect.getFillColor() == sf::Color(207, 207, 207))
+						drawText.setFillColor(sf::Color(86, 112, 80));
+					else if (rect.getFillColor() == sf::Color(86, 112, 80))
+						drawText.setFillColor(sf::Color(207, 207, 207));
+
+					window.draw(drawText);
+				}
 			}
 		}
 
@@ -111,11 +138,11 @@ public:
 	}
 
 	// Translates coordinates to board spaces
-	sf::Vector2i PositionToSpace(int x, int y) {
+	sf::Vector2i PositionToSpace(int x, int y) const {
 		return sf::Vector2i({ static_cast<int>((x - centerOffset.x) / spcWidth), static_cast<int>((y - centerOffset.y) / spcHeight) });
 	}
 
-	std::string PositionToString(int x, int y) {
+	std::string PositionToString(int x, int y) const {
 		char file = static_cast<char>(x + 97);
 		char rank = static_cast<char>(rows - y + 48);
 
@@ -131,7 +158,7 @@ public:
 			selectedSpcs.push_back(sf::Vector2i(row, col));
 	}
 
-	std::vector<sf::Vector2i> GetSelectedSpaces() {
+	std::vector<sf::Vector2i> GetSelectedSpaces() const {
 		return selectedSpcs;
 	}
 
@@ -139,7 +166,7 @@ public:
 		selectedSpcs.clear();
 	}
 
-	void operator= (Board copy){
+	void operator= (Board copy) {
 		for (int i = 0; i < rows; ++i) {
 			for (int j = 0; j < cols; ++j) {
 				board[i][j] = copy.GetSpace(i, j);
@@ -147,7 +174,7 @@ public:
 		}
 	}
 
-	T*** GetBoard() {
+	T*** GetBoard() const {
 		return board;
 	}
 
@@ -156,22 +183,22 @@ public:
 			board[row][col] = obj;
 	}
 
-	T* GetSpace(int row, int col) {
+	T* GetSpace(int row, int col) const {
 		if ((row > -1 && row < rows) && (col > -1 && col < cols))
 			return board[row][col];
 		else
 			return nullptr;
 	}
 	
-	const sf::Vector2i GetSize() {
+	const sf::Vector2i GetSize() const {
 		return { cols, rows };
 	}
 
-	const sf::Vector2f GetSpaceSize() {
+	const sf::Vector2f GetSpaceSize() const {
 		return { spcWidth, spcHeight };
 	}
 
-	const sf::Vector2f GetBoardOffset() {
+	const sf::Vector2f GetBoardOffset() const {
 		return centerOffset;
 	}
 

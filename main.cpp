@@ -27,7 +27,7 @@ int main()
         }
 
         window.clear();
-        gm.DrawScreen(window); // Draws the game
+        gm.Update(window); // Draws the game
         window.display();
     }
 }

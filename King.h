@@ -19,11 +19,16 @@ public:
 				if (prePos.x - pos.x == 2) {
 					Piece* rook = board.GetSpace(0, pos.y);
 					MoveRook(rook, { pos.x + 1, pos.y });
+					castleStatus = QUEEN_SIDE;
 				}
 				else if (pos.x - prePos.x == 2) {
 					Piece* rook = board.GetSpace(7, pos.y);
 					MoveRook(rook, { pos.x - 1, pos.y });
+					castleStatus = KING_SIDE;
 				}
+			}
+			else {
+				castleStatus = NONE;
 			}
 
 			return true;

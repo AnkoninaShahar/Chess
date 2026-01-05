@@ -29,6 +29,7 @@ Piece::~Piece() {
 bool Piece::Move(int x, int y, std::vector<std::pair<sf::Vector2i, Piece*>> legalMoves) {
 	for (std::pair<sf::Vector2i, Piece*> move : legalMoves) {
 		if (move.first == sf::Vector2i({ x, y })) {
+			previousPos = pos;
 			
 			// Captures other piece
 			if (move.second != nullptr) {

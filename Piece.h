@@ -21,6 +21,12 @@ public:
 		WHITE
 	};
 
+	enum castle {
+		KING_SIDE,
+		QUEEN_SIDE,
+		NONE
+	};
+
 	// Constructors for pieces
 	inline Piece(int x, int y, color col, Board<Piece>& board);
 	inline Piece(const Piece& copy) : pos(copy.pos), col(copy.col), board(copy.board) {}
@@ -42,6 +48,10 @@ public:
 	}
 
 	virtual const void Promote(int choice) {}
+
+	int GetCastleStatus() {
+		return castleStatus;
+	}
 
 	const void SetCheck(bool inCheck) {
 		this->inCheck = inCheck;
@@ -75,12 +85,27 @@ public:
 		return moveNum;
 	}
 
+	sf::Vector2i GetPreviousPosition() {
+		return previousPos;
+	}
+
 	const bool operator== (const Piece& other) {
 		return pos == other.pos;
 	}
 
+	std::string GetInfo() {
+		std::string className = static_cast<std::string>(typeid(*this).name());
+		return "[ NAME: " + className.substr(className.find(' ')) +
+			", POSITION: (" + std::to_string(pos.x) + ", " + std::to_string(pos.y) + ") ]";
+	}
+
+	void Print() {
+		std::cout << GetInfo() << std::endl;
+	}
+
 protected:
 	sf::Vector2i pos = { 0, 0 };
+	sf::Vector2i previousPos = { 0, 0 };
 	color col = WHITE;
 
 	Piece* capture = nullptr;
@@ -91,6 +116,8 @@ protected:
 	int turnNum = 0;
 
 	bool inCheck = false;
+
+	castle castleStatus = NONE;
 
 	sf::SoundBuffer moveSoundBuffer;
 	sf::SoundBuffer captureSoundBuffer;
