@@ -14,7 +14,7 @@
 
 #include <typeinfo>
 #include <iostream>
-#include <SFML\Graphics.hpp>
+#include <SFML/Graphics.hpp>
 
 using namespace Utilz;
 

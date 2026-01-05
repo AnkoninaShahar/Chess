@@ -2,7 +2,7 @@
 
 #include <iostream>
 #include <cmath>
-#include <SFML\Graphics.hpp>
+#include <SFML/Graphics.hpp>
 
 /// <summary>
 /// Represents a board

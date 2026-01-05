@@ -5,8 +5,8 @@
 #include <string>
 #include <vector>
 #include <typeinfo>
-#include <SFML\Graphics.hpp>
-#include <SFML\Audio.hpp>
+#include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 
 /// <summary>
 /// Blueprint class for more specific pieces
