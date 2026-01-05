@@ -76,7 +76,8 @@ public:
 				window.draw(rect);
 
 				if (j == 0) {
-					sf::Font font("Fonts/Maketa.ttf");
+					sf::Font font;
+					font.openFromFile("C:\\Users\\shank\\source\\repos\\Chess\\Fonts\\ARIALBD.TTF");
 					char text = 49 + i;
 
 					sf::Text drawText(font, text, smallestScreenSide / 40);
@@ -89,7 +90,8 @@ public:
 					window.draw(drawText);
 				}
 				if (i == rows - 1) {
-					sf::Font font("Fonts/Maketa.ttf");
+					sf::Font font;
+					font.openFromFile("C:\\Users\\shank\\source\\repos\\Chess\\Fonts\\ARIALBD.TTF");
 					char text = 97 + j;
 
 					sf::Text drawText(font, text, smallestScreenSide / 40);
